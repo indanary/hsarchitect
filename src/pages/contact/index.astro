@@ -1,7 +1,87 @@
 ---
-import MainLayout from "../../layouts/MainLayout.astro";
+import MainLayout from "../../layouts/MainLayout.astro"
 ---
 
 <MainLayout>
-  
+	<div class="w-full p-8 flex flex-col md:flex-row gap-8">
+		<!-- Information -->
+		<div class="flex flex-col gap-4 w-full md:w-1/2">
+			<div class="flex flex-col gap-1">
+				<span>Jl. Manyar III Blok O-3 Kav. 29-30 No. 4-6</span>
+				<span>Bintaro Jaya sektor I</span>
+				<span>Jakarta Selatan 12330</span>
+				<span>Indonesia</span>
+			</div>
+
+			<div class="flex flex-col gap-1">
+				<span>telp. +62 21 735 3338</span>
+				<span>fax. +62 21 735 6521</span>
+				<span>email. admin@andramatin.com</span>
+				<span>opportunities. intern@andramatin.com</span>
+			</div>
+		</div>
+
+		<!-- Email Form -->
+		<div class="flex flex-col gap-4 w-full md:w-1/2">
+			<h1 class="text-4xl">get in touch</h1>
+
+			<form
+				method="POST"
+				action="/api/contact"
+				class="flex flex-col gap-4"
+			>
+				<input
+					id="name"
+					name="name"
+					type="text"
+					placeholder="name"
+					required
+					minlength="2"
+					maxlength="100"
+					autocomplete="name"
+					class="form-input"
+				/>
+
+				<input
+					id="subject"
+					name="subject"
+					type="text"
+					placeholder="subject"
+					required
+					maxlength="150"
+					autocomplete="off"
+					class="form-input"
+				/>
+
+				<input
+					id="email"
+					name="email"
+					type="email"
+					placeholder="email"
+					required
+					autocomplete="email"
+					class="form-input"
+				/>
+
+				<textarea
+					id="message"
+					name="message"
+					placeholder="message"
+					required
+          rows="4"
+					minlength="10"
+					maxlength="1000"
+					autocomplete="off"
+					class="form-input"
+				></textarea>
+
+				<button
+					type="submit"
+					class="self-start bg-black text-white px-6 py-2 mt-4 hover:bg-gray-800 transition"
+				>
+					Send
+				</button>
+			</form>
+		</div>
+	</div>
 </MainLayout>
