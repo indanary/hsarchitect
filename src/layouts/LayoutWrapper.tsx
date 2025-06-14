@@ -3,11 +3,13 @@ import {useEffect, useState, type ReactNode} from "react"
 interface LayoutWrapperProps {
 	sidebar?: ReactNode
 	content?: ReactNode
+	theme?: "dark" | "light"
 }
 
 export default function LayoutWrapper({
 	sidebar,
 	content,
+	theme = "dark",
 }: Readonly<LayoutWrapperProps>) {
 	const [path, setPath] = useState("/")
 
@@ -19,12 +21,19 @@ export default function LayoutWrapper({
 
 	const isActive = (href: string) => path === href
 
+	const bgClass =
+		theme === "dark" ? "bg-[#071E50] text-white" : "bg-white text-black"
+
 	return (
-		<>
-			<aside className="flex flex-col h-full w-[22rem] text-white">
+		<div className={`w-full h-screen flex p-16 ${bgClass}`}>
+			<aside className="flex flex-col h-full w-[22rem]">
 				<a href="/">
 					<img
-						src="/src/images/hsarchitect-logo.png"
+						src={
+							theme === "dark"
+								? "/src/images/hsarchitect-logo-light.png"
+								: "/src/images/hsarchitect-logo-dark.png"
+						}
 						alt="HS Architect Logo"
 						width={188}
 						height="auto"
@@ -34,7 +43,6 @@ export default function LayoutWrapper({
 					/>
 				</a>
 
-				{/* Always render wrapper, sidebar can be empty */}
 				<div className="flex-1 overflow-auto py-12">{sidebar}</div>
 
 				<nav
@@ -42,37 +50,27 @@ export default function LayoutWrapper({
 					role="navigation"
 					aria-label="Main navigation"
 				>
-					<a
-						href="/projects"
-						className={`hover:text-gray-300 transition-colors ${
-							isActive("/projects") ? "font-bold" : ""
-						}`}
-					>
-						Projects
-					</a>
-					<a
-						href="/studio"
-						className={`hover:text-gray-300 transition-colors ${
-							isActive("/studio") ? "font-bold" : ""
-						}`}
-					>
-						Studio
-					</a>
-					<a
-						href="/contact"
-						className={`hover:text-gray-300 transition-colors ${
-							isActive("/contact") ? "font-bold" : ""
-						}`}
-					>
-						Contact
-					</a>
+					{[
+						{label: "Projects", href: "/projects"},
+						{label: "Studio", href: "/studio"},
+						{label: "Contact", href: "/contact"},
+					].map(({label, href}) => (
+						<a
+							key={href}
+							href={href}
+							className={`hover:opacity-80 transition-colors ${
+								isActive(href) ? "font-bold" : ""
+							}`}
+						>
+							{label}
+						</a>
+					))}
 				</nav>
 			</aside>
 
-			{/* Conditionally render content area if provided */}
 			{content && (
 				<main className="flex-1 overflow-auto pl-12">{content}</main>
 			)}
-		</>
+		</div>
 	)
 }
