@@ -1,0 +1,21 @@
+<aside class="flex flex-col h-full w-[22rem]">
+  <img
+    src="/src/images/hsarchitect-logo.png"
+    alt="HS Architect Logo"
+    width="188"
+    height="auto"
+    class="w-[188px] h-auto object-contain"
+    loading="lazy"
+    decoding="async"
+  />
+
+  <div class="flex-1 overflow-auto">
+    <slot name="sidebar" />
+  </div>
+
+  <div class="flex items-center gap-16 text-white">
+    <a href="/">Projects</a>
+    <a href="/">Studio</a>
+    <a href="/">Contact</a>
+  </div>
+</aside>
