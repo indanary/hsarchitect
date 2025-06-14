@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
 /* styles/global.css */
-.form-input {
-  @apply py-2 border-b-2 border-gray-300 focus:outline-none focus:border-black transition;
+body {
+  font-family: 'Open Sans', sans-serif;
 }
