@@ -31,8 +31,8 @@ export default function LayoutWrapper({
 					<img
 						src={
 							theme === "dark"
-								? "/public/images/hsarchitect-logo-light.png"
-								: "/public/images/hsarchitect-logo-dark.png"
+								? "/images/hsarchitect-logo-light.png"
+								: "/images/hsarchitect-logo-dark.png"
 						}
 						alt="HS Architect Logo"
 						width={188}
