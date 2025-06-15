@@ -25,7 +25,7 @@ export default function LayoutWrapper({
 		theme === "dark" ? "bg-[#071E50] text-white" : "bg-white text-black"
 
 	return (
-		<div className={`w-full h-screen flex p-16 ${bgClass}`}>
+		<div className={`w-full h-screen flex p-12 ${bgClass}`}>
 			<aside className="flex flex-col h-full w-[22rem]">
 				<a href="/">
 					<img
@@ -58,7 +58,7 @@ export default function LayoutWrapper({
 						<a
 							key={href}
 							href={href}
-							className={`hover:opacity-80 transition-colors ${
+							className={`hover:opacity-80 transition-colors text-xs ${
 								isActive(href) ? "font-bold" : ""
 							}`}
 						>

@@ -39,9 +39,9 @@ export default function CategorySelector({onSelect}: Readonly<Props>) {
 						aria-current={isSelected ? "true" : undefined}
 					>
 						<span
-							className={`inline-block border-b-2 transition-all duration-300 ${
+							className={`inline-block border-b-2 transition-all duration-300 text-xs ${
 								isSelected
-									? "border-white"
+									? "border-white font-bold"
 									: "border-transparent hover:border-white/40"
 							}`}
 						>

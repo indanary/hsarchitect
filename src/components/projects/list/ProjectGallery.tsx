@@ -87,7 +87,7 @@ export default function ProjectGallery({category}: Readonly<Props>) {
 
 	return (
 		<div className="overflow-y-auto max-h-[620px]">
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-3 gap-4">
 				{projects.map((project) => (
 					<img
 						key={project.id}
