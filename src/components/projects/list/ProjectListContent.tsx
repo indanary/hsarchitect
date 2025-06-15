@@ -10,7 +10,7 @@ export default function ProjectContent() {
 		<LayoutWrapper
 			sidebar={
 				<div className="flex gap-10 text-white" slot="sidebar">
-					<span className="text-base font-semibold border-b-2 border-transparent">
+					<span className="text-xs font-semibold">
 						Project Type
 					</span>
 					<SelectCategory onSelect={setCategory} />

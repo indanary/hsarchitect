@@ -23,23 +23,22 @@ export default function CategorySelector({onSelect}: Readonly<Props>) {
 	}
 
 	return (
-		<div className="flex flex-col gap-2 text-white font-semibold">
+		<div className="flex flex-col gap-3 text-white font-semibold">
 			{categories.map((category) => {
 				const isSelected = selectedCategory === category
 
 				return (
-					<button
+					<span
 						key={category}
-						type="button"
+						className="cursor-pointer text-xs"
 						onClick={() => {
 							setSelectedCategory(category)
 							onSelect?.(category)
 						}}
-						className="text-left cursor-pointer focus:outline-none"
 						aria-current={isSelected ? "true" : undefined}
 					>
 						<span
-							className={`inline-block border-b-2 transition-all duration-300 text-xs ${
+							className={`inline-block border-b-2 transition-all duration-300 ${
 								isSelected
 									? "border-white font-bold"
 									: "border-transparent hover:border-white/40"
@@ -47,7 +46,7 @@ export default function CategorySelector({onSelect}: Readonly<Props>) {
 						>
 							{category}
 						</span>
-					</button>
+					</span>
 				)
 			})}
 		</div>
