@@ -3,7 +3,7 @@ import LayoutWrapper from "../../../layouts/LayoutWrapper"
 import SelectCategory from "./SelectCategory"
 import ProjectGallery from "./ProjectGallery"
 
-export default function ProjectContent() {
+export default function ProjectListContent() {
 	const [category, setCategory] = useState("All")
 
 	return (
