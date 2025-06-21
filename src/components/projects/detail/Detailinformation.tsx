@@ -7,17 +7,21 @@ interface Project {
 
 export default function DetailInformation({project}: {project: Project}) {
 	return (
-		<div className="w-full flex justify-between gap-10">
+		<div className="w-full flex justify-between gap-14">
 			{/* Left Side */}
 			<div className="flex flex-col gap-8">
-				<img
-					src="/images/back-icon.svg"
-					alt="Back"
-					height="auto"
-					loading="lazy"
-					decoding="async"
-					className="cursor-pointer h-auto object-contain w-[20px] mt-2"
-				/>
+				<a
+					href="/projects"
+				>
+					<img
+						src="/images/back-icon.svg"
+						alt="Back"
+						height="auto"
+						loading="lazy"
+						decoding="async"
+						className="cursor-pointer h-auto object-contain w-[20px] mt-2"
+					/>
+				</a>
 
 				<div className="flex flex-col gap-2 text-xs">
 					<span className="font-bold">Category</span>
@@ -54,17 +58,17 @@ export default function DetailInformation({project}: {project: Project}) {
 					sed diam nonummy nibh euismod tincidunt ut laoreet dolore
 					magna aliquam erat volutpat. Ut wisi enim ad minim veniam,
 					quis nostrud exerci tation ullamcorper suscipit lobortis
-					nisl ut aliquip ex ea commodo consequat. 
-          <br/><br/>
-          Duis autem vel eum
-					iriure dolor in hendrerit in vulputate velit esse molestie
-					consequat, vel illum dolore eu feugiat nulla facilisis at
-					vero eros et accumsan et iusto odio dignissim qui blandit
-					praesent luptatum zzril delenit augue duis dolore te feugait
-					nulla facilisi. feugiat nulla facilisis at vero eros et
-					accumsan et iusto odio dignissim qui blandit praesent
-					luptatum zzril delenit augue duis dolore te feugait nulla
-					facilisi.
+					nisl ut aliquip ex ea commodo consequat.
+					<br />
+					<br />
+					Duis autem vel eum iriure dolor in hendrerit in vulputate
+					velit esse molestie consequat, vel illum dolore eu feugiat
+					nulla facilisis at vero eros et accumsan et iusto odio
+					dignissim qui blandit praesent luptatum zzril delenit augue
+					duis dolore te feugait nulla facilisi. feugiat nulla
+					facilisis at vero eros et accumsan et iusto odio dignissim
+					qui blandit praesent luptatum zzril delenit augue duis
+					dolore te feugait nulla facilisi.
 				</span>
 			</div>
 		</div>

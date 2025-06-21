@@ -1,5 +1,7 @@
 ---
+import {ClientRouter} from "astro:transitions"
 
+const {title} = Astro.props
 ---
 
 <head>
@@ -15,5 +17,6 @@
 		rel="stylesheet"
 	/>
 
-	<title>hsarchitect.id</title>
+	<ClientRouter />
+	<title>{title} | hsarchitect.id</title>
 </head>

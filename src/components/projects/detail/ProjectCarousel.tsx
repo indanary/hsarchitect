@@ -24,7 +24,7 @@ export default function ProjectCarousel({images}: ProjectCarouselProps) {
 	const slider = instanceRef.current
 
 	return (
-		<div className="h-[440px]">
+		<div className="h-[440px] px-10">
 			<div className="relative mt-25">
 				{/* Slider */}
 				<div ref={sliderRef} className="keen-slider overflow-hidden">

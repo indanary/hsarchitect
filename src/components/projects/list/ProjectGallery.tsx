@@ -4,6 +4,7 @@ interface Project {
 	id: number
 	title: string
 	imageUrl: string
+	location: string
 }
 
 interface Props {
@@ -22,58 +23,58 @@ export default function ProjectGallery({category}: Readonly<Props>) {
 			const dummy: Record<string, Project[]> = {
 				All: [
 					{
-						id: 1015,
-						title: "Project 1",
-						imageUrl: "https://picsum.photos/id/1015/400/300",
+						id: 1,
+						title: "Ria Miranda",
+						imageUrl: "/images/project-example.png",
+						location: "Semarang",
 					},
 					{
-						id: 1016,
-						title: "Project 2",
-						imageUrl: "https://picsum.photos/id/1016/400/300",
+						id: 1,
+						title: "Ria Miranda",
+						imageUrl: "/images/project-example.png",
+						location: "Semarang",
 					},
 					{
-						id: 1018,
-						title: "Project 3",
-						imageUrl: "https://picsum.photos/id/1018/400/300",
+						id: 1,
+						title: "Ria Miranda",
+						imageUrl: "/images/project-example.png",
+						location: "Semarang",
 					},
 					{
-						id: 1019,
-						title: "Project 4",
-						imageUrl: "https://picsum.photos/id/1019/400/300",
+						id: 1,
+						title: "Ria Miranda",
+						imageUrl: "/images/project-example.png",
+						location: "Semarang",
 					},
 					{
-						id: 1020,
-						title: "Project 5",
-						imageUrl: "https://picsum.photos/id/1020/400/300",
+						id: 1,
+						title: "Ria Miranda",
+						imageUrl: "/images/project-example.png",
+						location: "Semarang",
 					},
 					{
-						id: 1021,
-						title: "Project 6",
-						imageUrl: "https://picsum.photos/id/1021/400/300",
-					},
-				],
-				Residential: [
-					{
-						id: 1015,
-						title: "Residential 1",
-						imageUrl: "https://picsum.photos/id/1015/400/300",
+						id: 1,
+						title: "Ria Miranda",
+						imageUrl: "/images/project-example.png",
+						location: "Semarang",
 					},
 					{
-						id: 1016,
-						title: "Residential 2",
-						imageUrl: "https://picsum.photos/id/1016/400/300",
-					},
-				],
-				Commercial: [
-					{
-						id: 1018,
-						title: "Commercial 1",
-						imageUrl: "https://picsum.photos/id/1018/400/300",
+						id: 1,
+						title: "Ria Miranda",
+						imageUrl: "/images/project-example.png",
+						location: "Semarang",
 					},
 					{
-						id: 1020,
-						title: "Commercial 2",
-						imageUrl: "https://picsum.photos/id/1020/400/300",
+						id: 1,
+						title: "Ria Miranda",
+						imageUrl: "/images/project-example.png",
+						location: "Semarang",
+					},
+					{
+						id: 1,
+						title: "Ria Miranda",
+						imageUrl: "/images/project-example.png",
+						location: "Semarang",
 					},
 				],
 			}
@@ -88,13 +89,27 @@ export default function ProjectGallery({category}: Readonly<Props>) {
 	return (
 		<div className="overflow-y-auto max-h-[620px]">
 			<div className="grid grid-cols-3 gap-4">
-				{projects.map((project) => (
-					<img
-						key={project.id}
-						src={project.imageUrl}
-						alt={project.title}
-						className="w-full h-auto object-cover"
-					/>
+				{projects.map((project, index) => (
+					<a
+						key={index}
+						href={`/projects/${project.id}`}
+						className="relative group overflow-hidden rounded-md block"
+					>
+						<img
+							src={project.imageUrl}
+							alt={project.title}
+							className="w-full h-auto object-cover transition duration-300 group-hover:brightness-75"
+						/>
+
+						<div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+							<p className="text-white text-xs font-semibold">
+								{project.title}&nbsp;&nbsp;
+								<span className="font-normal text-xs">
+									{project.location}
+								</span>
+							</p>
+						</div>
+					</a>
 				))}
 			</div>
 		</div>

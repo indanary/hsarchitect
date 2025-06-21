@@ -11,9 +11,9 @@ interface Project {
 
 export default function ProjectDetailContent({project}: {project: Project}) {
 	const images = [
-		"https://picsum.photos/id/1015/800/420",
-		"https://picsum.photos/id/1016/800/420",
-		"https://picsum.photos/id/1018/800/420",
+		"https://picsum.photos/id/1015/800/472",
+		"https://picsum.photos/id/1016/800/472",
+		"https://picsum.photos/id/1018/800/472",
 	]
 
 	return (

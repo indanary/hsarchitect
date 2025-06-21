@@ -21,7 +21,7 @@ export default function LayoutWrapper({
 		}
 	}, [])
 
-	const isActive = (href: string) => path === href
+	const isActive = (href: string) => path.startsWith(href)
 
 	const bgClass =
 		theme === "dark" ? "bg-[#071E50] text-white" : "bg-white text-black"

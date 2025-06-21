@@ -5,7 +5,7 @@ interface Props {
 }
 
 export default function CategorySelector({onSelect}: Readonly<Props>) {
-	const [categories, setCategories] = useState(["All", "Residenccial"])
+	const [categories, setCategories] = useState(["All"])
 	const [selectedCategory, setSelectedCategory] = useState("All")
 
 	// Optional: fetch from API later
