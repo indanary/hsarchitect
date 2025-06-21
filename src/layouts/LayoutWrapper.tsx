@@ -81,9 +81,9 @@ export default function LayoutWrapper({
 			{showSearch && (
 				<a
 					href="/search"
-					className={`fixed bottom-12 right-12 text-white z-50 hover:opacity-80 transition-colors text-xs-loose ${
+					className={`fixed bottom-12 right-12 z-50 hover:opacity-80 transition-colors text-xs-loose ${
 						isActive("/search") ? "font-bold" : ""
-					}`}
+					} ${theme === "dark" ? "text-white" : "text-[#071E50]"}`}
 				>
 					Search.........
 				</a>

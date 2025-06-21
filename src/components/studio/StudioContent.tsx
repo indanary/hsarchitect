@@ -26,6 +26,7 @@ export default function StudioContent() {
 
 	return (
 		<LayoutWrapper
+			showSearch
 			sidebar={
 				<div className="flex gap-10 text-white">
 					{/* Spacer div */}

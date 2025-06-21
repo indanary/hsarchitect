@@ -18,6 +18,7 @@ export default function ProjectDetailContent({project}: {project: Project}) {
 
 	return (
 		<LayoutWrapper
+			showSearch
 			theme="light"
 			sidebar={<DetailInformation project={project} />}
 			content={<ProjectCarousel images={images} />}

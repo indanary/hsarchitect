@@ -24,14 +24,14 @@ export default function ProjectCarousel({images}: ProjectCarouselProps) {
 	const slider = instanceRef.current
 
 	return (
-		<div className="px-10 overflow-hidden mt-24">
+		<div className="pl-10 overflow-hidden mt-24">
 			<div className="relative">
 				{/* Slider */}
 				<div ref={sliderRef} className="keen-slider overflow-hidden">
 					{images.map((src, index) => (
 						<div
 							key={index}
-							className="keen-slider__slide aspect-[800/533] w-full overflow-hidden"
+							className="keen-slider__slide aspect-[800/480] w-full overflow-hidden"
 						>
 							<img
 								src={src}
