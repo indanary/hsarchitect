@@ -2,12 +2,14 @@ import {useEffect, useState, type ReactNode} from "react"
 
 interface LayoutWrapperProps {
 	sidebar?: ReactNode
+	sidebarClass?: string
 	content?: ReactNode
 	theme?: "dark" | "light"
 }
 
 export default function LayoutWrapper({
 	sidebar,
+	sidebarClass,
 	content,
 	theme = "dark",
 }: Readonly<LayoutWrapperProps>) {
@@ -43,7 +45,9 @@ export default function LayoutWrapper({
 					/>
 				</a>
 
-				<div className="flex-1 overflow-auto py-12">{sidebar}</div>
+				<div className={`flex-1 overflow-auto py-12 ${sidebarClass}`}>
+					{sidebar}
+				</div>
 
 				<nav
 					className="flex items-center gap-16"
