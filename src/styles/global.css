@@ -5,3 +5,9 @@
 body {
 	font-family: "Open Sans", sans-serif;
 }
+
+@layer utilities {
+  .text-xs-loose-loose {
+    @apply text-xs-loose leading-[2];
+  }
+}

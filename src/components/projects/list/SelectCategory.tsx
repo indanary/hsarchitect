@@ -30,7 +30,7 @@ export default function CategorySelector({onSelect}: Readonly<Props>) {
 				return (
 					<span
 						key={category}
-						className="cursor-pointer text-xs"
+						className="cursor-pointer text-xs-loose"
 						onClick={() => {
 							setSelectedCategory(category)
 							onSelect?.(category)

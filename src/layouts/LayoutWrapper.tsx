@@ -28,7 +28,7 @@ export default function LayoutWrapper({
 
 	return (
 		<div className={`w-full h-screen flex p-12 ${bgClass}`}>
-			<aside className="flex flex-col h-full w-[22rem]">
+			<aside className="flex flex-col h-full w-[24rem]">
 				<a href="/">
 					<img
 						src={
@@ -45,7 +45,7 @@ export default function LayoutWrapper({
 					/>
 				</a>
 
-				<div className={`flex-1 overflow-auto py-12 ${sidebarClass}`}>
+				<div className={`flex-1 overflow-auto py-10 ${sidebarClass}`}>
 					{sidebar}
 				</div>
 
@@ -62,7 +62,7 @@ export default function LayoutWrapper({
 						<a
 							key={href}
 							href={href}
-							className={`hover:opacity-80 transition-colors text-xs ${
+							className={`hover:opacity-80 transition-colors text-xs-loose ${
 								isActive(href) ? "font-bold" : ""
 							}`}
 						>

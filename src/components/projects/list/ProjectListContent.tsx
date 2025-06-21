@@ -11,7 +11,7 @@ export default function ProjectListContent() {
 		<LayoutWrapper
 			sidebar={
 				<div className="flex gap-10 text-white" slot="sidebar">
-					<span className="text-xs font-semibold">
+					<span className="text-xs-loose font-semibold">
 						Project Type
 					</span>
 					<SelectCategory onSelect={setCategory} />

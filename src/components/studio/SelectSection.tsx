@@ -18,7 +18,7 @@ export default function SelectSection({onSelect}: Readonly<Props>) {
 				return (
 					<span
 						key={section}
-						className="cursor-pointer text-xs"
+						className="cursor-pointer text-xs-loose"
 						onClick={() => {
 							setSelectedSection(section)
 							onSelect?.(section)

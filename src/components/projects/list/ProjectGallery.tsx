@@ -93,7 +93,7 @@ export default function ProjectGallery({category}: Readonly<Props>) {
 					<a
 						key={index}
 						href={`/projects/${project.id}`}
-						className="relative group overflow-hidden rounded-md block"
+						className="relative group overflow-hidden block"
 					>
 						<img
 							src={project.imageUrl}
@@ -102,9 +102,9 @@ export default function ProjectGallery({category}: Readonly<Props>) {
 						/>
 
 						<div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-							<p className="text-white text-xs font-semibold">
+							<p className="text-white text-xs-loose font-semibold">
 								{project.title}&nbsp;&nbsp;
-								<span className="font-normal text-xs">
+								<span className="font-normal text-xs-loose">
 									{project.location}
 								</span>
 							</p>
