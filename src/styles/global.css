@@ -8,6 +8,6 @@ body {
 
 @layer utilities {
   .text-xs-loose-loose {
-    @apply text-xs-loose leading-[2];
+    @apply text-xs leading-[2];
   }
 }
