@@ -5,6 +5,7 @@ interface LayoutWrapperProps {
 	sidebarClass?: string
 	content?: ReactNode
 	theme?: "dark" | "light"
+	showSearch?: boolean
 }
 
 export default function LayoutWrapper({
@@ -12,6 +13,7 @@ export default function LayoutWrapper({
 	sidebarClass,
 	content,
 	theme = "dark",
+	showSearch = false,
 }: Readonly<LayoutWrapperProps>) {
 	const [path, setPath] = useState("/")
 
@@ -74,6 +76,17 @@ export default function LayoutWrapper({
 
 			{content && (
 				<main className="flex-1 overflow-auto pl-12">{content}</main>
+			)}
+
+			{showSearch && (
+				<a
+					href="/search"
+					className={`fixed bottom-12 right-12 text-white z-50 hover:opacity-80 transition-colors text-xs-loose ${
+						isActive("/search") ? "font-bold" : ""
+					}`}
+				>
+					Search.........
+				</a>
 			)}
 		</div>
 	)
