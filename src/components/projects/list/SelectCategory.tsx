@@ -5,7 +5,13 @@ interface Props {
 }
 
 export default function CategorySelector({onSelect}: Readonly<Props>) {
-	const [categories, setCategories] = useState(["All"])
+	const [categories, setCategories] = useState([
+		"All",
+		"Residenccial",
+		"Commercial",
+		"Retail",
+		"Etc",
+	])
 	const [selectedCategory, setSelectedCategory] = useState("All")
 
 	// Optional: fetch from API later
@@ -23,7 +29,7 @@ export default function CategorySelector({onSelect}: Readonly<Props>) {
 	}
 
 	return (
-		<div className="flex flex-col gap-3 text-white font-semibold">
+		<div className="flex flex-row flex-wrap sm:flex-col gap-3 text-white font-normal">
 			{categories.map((category) => {
 				const isSelected = selectedCategory === category
 

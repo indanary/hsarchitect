@@ -11,7 +11,7 @@ export default function SelectSection({onSelect}: Readonly<Props>) {
 	const [selectedSection, setSelectedSection] = useState("Profile")
 
 	return (
-		<div className="flex flex-col gap-3 text-white font-semibold">
+		<div className="flex flex-col gap-3 text-white">
 			{sections.map((section) => {
 				const isSelected = selectedSection === section
 

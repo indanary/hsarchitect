@@ -88,7 +88,7 @@ export default function ProjectGallery({category}: Readonly<Props>) {
 
 	return (
 		<div className="overflow-y-auto max-h-[620px]">
-			<div className="grid grid-cols-3 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 				{projects.map((project, index) => (
 					<a
 						key={index}

@@ -5,8 +5,8 @@ import ProjectCarousel from "./ProjectCarousel"
 interface Project {
 	id: number
 	title: string
-	imageUrl: string
 	description: string
+	images: string[]
 }
 
 export default function ProjectDetailContent({project}: {project: Project}) {
@@ -21,7 +21,13 @@ export default function ProjectDetailContent({project}: {project: Project}) {
 			showSearch
 			theme="light"
 			sidebar={<DetailInformation project={project} />}
-			content={<ProjectCarousel images={images} />}
+			content={
+				<ProjectCarousel
+					images={images}
+					wrapperClass="pl-10 overflow-hidden mt-24 hidden sm:block"
+					size="aspect-[800/480]"
+				/>
+			}
 		/>
 	)
 }
