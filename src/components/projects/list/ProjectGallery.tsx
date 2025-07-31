@@ -88,7 +88,7 @@ export default function ProjectGallery({category}: Readonly<Props>) {
 
 	return (
 		<div className="overflow-y-auto max-h-[620px]">
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4">
 				{projects.map((project, index) => (
 					<a
 						key={index}
@@ -101,7 +101,16 @@ export default function ProjectGallery({category}: Readonly<Props>) {
 							className="w-full h-auto object-cover transition duration-300 group-hover:brightness-75"
 						/>
 
-						<div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+						<div className="flex items-center mt-2">
+							<p className="text-white text-xs-loose font-semibold">
+								{project.title}&nbsp;&nbsp;
+								<span className="font-normal text-xs-loose">
+									{project.location}
+								</span>
+							</p>
+						</div>
+
+						<div className="absolute inset-0 hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
 							<p className="text-white text-xs-loose font-semibold">
 								{project.title}&nbsp;&nbsp;
 								<span className="font-normal text-xs-loose">

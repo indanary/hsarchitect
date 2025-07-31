@@ -106,7 +106,7 @@ export default function SearchResult() {
 			{/* scroll only this */}
 			<div className="flex-1 overflow-y-auto max-h-[620px]">
 				{!loading ? (
-					<div className="grid grid-cols-3 gap-4">
+					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 						{projects.map((project, index) => (
 							<a
 								key={index}
@@ -118,7 +118,17 @@ export default function SearchResult() {
 									alt={project.title}
 									className="w-full h-auto object-cover transition duration-300 group-hover:brightness-75"
 								/>
-								<div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+
+								<div className="flex items-center mt-2">
+									<p className="text-[#071E50] text-xs-loose font-semibold">
+										{project.title}&nbsp;&nbsp;
+										<span className="font-normal text-xs-loose">
+											{project.location}
+										</span>
+									</p>
+								</div>
+
+								<div className="absolute inset-0 hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
 									<p className="text-white text-xs-loose font-semibold">
 										{project.title}&nbsp;&nbsp;
 										<span className="font-normal text-xs-loose">
@@ -130,7 +140,7 @@ export default function SearchResult() {
 						))}
 					</div>
 				) : (
-					<div className="grid grid-cols-3 gap-4">
+					<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 						{Array.from({length: 9}).map((_, idx) => (
 							<div
 								key={idx}

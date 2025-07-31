@@ -31,7 +31,7 @@ export default function LayoutWrapper({
 
 	return (
 		<div
-			className={`w-full min-h-screen sm:h-screen flex flex-col sm:flex-row p-6 sm:p-9 ${bgClass}`}
+			className={`w-full min-h-screen sm:h-screen flex flex-col sm:flex-row p-6 sm:p-9 ${bgClass} ${isOpen ? 'fixed' : 'relative'}`}
 		>
 			<aside className="flex flex-col h-full w-full sm:w-[24rem]">
 				<div className="w-full flex justify-between items-center">
@@ -43,9 +43,8 @@ export default function LayoutWrapper({
 									: "/images/hsarchitect-logo-dark.png"
 							}
 							alt="HS Architect Logo"
-							width={188}
 							height="auto"
-							className="w-[132px] sm:w-[188px] h-auto object-contain"
+							className="w-[132px] sm:w-[144px] h-auto object-contain"
 							loading="lazy"
 							decoding="async"
 						/>
@@ -142,7 +141,7 @@ export default function LayoutWrapper({
 			</aside>
 
 			{content && (
-				<main className="flex-1 overflow-auto pl-0 sm:pl-12">
+				<main className="flex-1 overflow-hidden pl-0 sm:pl-12">
 					{content}
 				</main>
 			)}
@@ -150,7 +149,7 @@ export default function LayoutWrapper({
 			{showSearch && (
 				<a
 					href="/search"
-					className={`fixed bottom-12 right-12 z-50 hover:opacity-80 transition-colors text-xs-loose hidden sm:block ${
+					className={`fixed bottom-9 right-12 z-50 hover:opacity-80 transition-colors text-xs-loose hidden sm:block ${
 						isActive("/search") ? "font-bold" : ""
 					} ${theme === "dark" ? "text-white" : "text-[#071E50]"}`}
 				>
