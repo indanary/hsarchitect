@@ -15,7 +15,7 @@ const ContactMobile = () => {
 				</div>
 			</div>
 
-			<div className="flex items-center gap-8">
+			<div className="flex items-start gap-8">
 				<span className="w-[35%] text-xs-loose">
 					Or Simply, Send us an Email
 				</span>

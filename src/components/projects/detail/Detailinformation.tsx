@@ -30,27 +30,27 @@ export default function DetailInformation({project}: {project: Project}) {
 						/>
 					</a>
 
-					<div className="flex flex-col text-xs-loose">
+					<div className="flex flex-col text-xs-loose text-[#071E50]">
 						<span className="font-bold">Category</span>
 						<span>Commercial</span>
 					</div>
 
-					<div className="flex flex-col text-xs-loose">
+					<div className="flex flex-col text-xs-loose text-[#071E50]">
 						<span className="font-bold">Scope</span>
 						<span>Architecture Interior</span>
 					</div>
 
-					<div className="flex flex-col text-xs-loose">
+					<div className="flex flex-col text-xs-loose text-[#071E50]">
 						<span className="font-bold">Year</span>
 						<span>2025</span>
 					</div>
 
-					<div className="flex flex-col text-xs-loose">
+					<div className="flex flex-col text-xs-loose text-[#071E50]">
 						<span className="font-bold">Status</span>
 						<span>Build</span>
 					</div>
 
-					<div className="flex flex-col text-xs-loose">
+					<div className="flex flex-col text-xs-loose text-[#071E50]">
 						<span className="font-bold">Area</span>
 						<span>200 Sqm</span>
 					</div>
@@ -58,9 +58,9 @@ export default function DetailInformation({project}: {project: Project}) {
 
 				{/* right side */}
 				<div className="flex flex-col gap-4">
-					<h1 className="text-2xl font-semibold">Bharga Bistro</h1>
+					<h1 className="text-2xl font-bold text-[#071E50]">Bharga Bistro</h1>
 
-					<span className="text-xs-loose">
+					<span className="text-xs-loose text-[#071E50]">
 						Lorem ipsum dolor sit amet, consectetuer adipiscing
 						elit, sed diam nonummy nibh euismod tincidunt ut laoreet
 						dolore magna aliquam erat volutpat. Ut wisi enim ad
@@ -97,7 +97,7 @@ export default function DetailInformation({project}: {project: Project}) {
 						/>
 					</a>
 
-					<h1 className="text-[22px] font-semibold">Bharga Bistro</h1>
+					<h1 className="text-[22px] font-bold text-[#071E50]">Bharga Bistro</h1>
 
 					<div></div>
 				</div>
@@ -107,27 +107,27 @@ export default function DetailInformation({project}: {project: Project}) {
 				<div className="w-full flex justify-between gap-10">
 					{/* Left Side */}
 					<div className="flex flex-col gap-4">
-						<div className="flex flex-col text-xs-loose">
+						<div className="flex flex-col text-xs-loose text-[#071E50]">
 							<span className="font-bold">Category</span>
 							<span>Commercial</span>
 						</div>
 
-						<div className="flex flex-col text-xs-loose">
+						<div className="flex flex-col text-xs-loose text-[#071E50]">
 							<span className="font-bold">Scope</span>
 							<span>Architecture Interior</span>
 						</div>
 
-						<div className="flex flex-col text-xs-loose">
+						<div className="flex flex-col text-xs-loose text-[#071E50]">
 							<span className="font-bold">Year</span>
 							<span>2025</span>
 						</div>
 
-						<div className="flex flex-col text-xs-loose">
+						<div className="flex flex-col text-xs-loose text-[#071E50]">
 							<span className="font-bold">Status</span>
 							<span>Build</span>
 						</div>
 
-						<div className="flex flex-col text-xs-loose">
+						<div className="flex flex-col text-xs-loose text-[#071E50]">
 							<span className="font-bold">Area</span>
 							<span>200 Sqm</span>
 						</div>
@@ -135,7 +135,7 @@ export default function DetailInformation({project}: {project: Project}) {
 
 					{/* right side */}
 				<div className="flex flex-col gap-4">
-					<span className="text-xs-loose">
+					<span className="text-xs-loose text-[#071E50]">
 						Lorem ipsum dolor sit amet, consectetuer adipiscing
 						elit, sed diam nonummy nibh euismod tincidunt ut laoreet
 						dolore magna aliquam erat volutpat. Ut wisi enim ad

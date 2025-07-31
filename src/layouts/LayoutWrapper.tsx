@@ -10,7 +10,7 @@ interface LayoutWrapperProps {
 
 export default function LayoutWrapper({
 	sidebar,
-	sidebarClass = '',
+	sidebarClass = "",
 	content,
 	theme = "dark",
 	showSearch = false,
@@ -30,7 +30,9 @@ export default function LayoutWrapper({
 		theme === "dark" ? "bg-[#071E50] text-white" : "bg-white text-black"
 
 	return (
-		<div className={`w-full min-h-screen sm:h-screen flex flex-col sm:flex-row p-6 sm:p-9 ${bgClass}`}>
+		<div
+			className={`w-full min-h-screen sm:h-screen flex flex-col sm:flex-row p-6 sm:p-9 ${bgClass}`}
+		>
 			<aside className="flex flex-col h-full w-full sm:w-[24rem]">
 				<div className="w-full flex justify-between items-center">
 					<a href="/">
@@ -76,15 +78,15 @@ export default function LayoutWrapper({
 				<div
 					className={`sm:hidden fixed top-[80px] left-0 w-full z-50 transition-all duration-300 ease-in-out transform origin-top ${
 						isOpen
-							? "max-h-96 opacity-100 scale-y-100"
-							: "max-h-0 opacity-0 scale-y-95 pointer-events-none"
+							? "h-[calc(100vh-80px)] opacity-100 scale-y-100 overflow-auto"
+							: "h-0 opacity-0 scale-y-95 pointer-events-none overflow-hidden"
 					}`}
 				>
 					<nav
-						className={`flex flex-col gap-2 py-4 px-6 ${
+						className={`h-full flex flex-col gap-2 py-4 px-6 ${
 							theme === "dark"
 								? "bg-[#071E50] text-white"
-								: "bg-white text-black"
+								: "bg-white text-[#071E50]"
 						}`}
 						role="navigation"
 						aria-label="Mobile navigation"
@@ -113,7 +115,11 @@ export default function LayoutWrapper({
 				</div>
 
 				<nav
-					className="sm:flex items-center gap-16 hidden"
+					className={`sm:flex items-center gap-16 hidden ${
+						theme === "dark"
+							? "bg-[#071E50] text-white"
+							: "bg-white text-[#071E50]"
+					}`}
 					role="navigation"
 					aria-label="Main navigation"
 				>
@@ -136,7 +142,9 @@ export default function LayoutWrapper({
 			</aside>
 
 			{content && (
-				<main className="flex-1 overflow-auto pl-0 sm:pl-12">{content}</main>
+				<main className="flex-1 overflow-auto pl-0 sm:pl-12">
+					{content}
+				</main>
 			)}
 
 			{showSearch && (
