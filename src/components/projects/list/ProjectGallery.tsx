@@ -101,7 +101,7 @@ export default function ProjectGallery({category}: Readonly<Props>) {
 							className="w-full h-auto object-cover transition duration-300 group-hover:brightness-75"
 						/>
 
-						<div className="flex items-center mt-2">
+						<div className="flex sm:hidden items-center mt-2">
 							<p className="text-white text-xs-loose font-semibold">
 								{project.title}&nbsp;&nbsp;
 								<span className="font-normal text-xs-loose">
