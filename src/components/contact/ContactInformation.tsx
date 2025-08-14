@@ -1,6 +1,6 @@
 export default function ContactInformation() {
 	return (
-		<div className="w-full max-w-[200px] flex flex-col gap-10 text-left">
+		<div className="w-full max-w-[176px] flex flex-col gap-10 text-left">
 			<div className="flex flex-col gap-6">
 				<span className="text-xs-loose">
 					For general and project inquiries, feel free to reach us

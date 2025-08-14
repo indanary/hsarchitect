@@ -4,10 +4,59 @@
 /* styles/global.css */
 body {
 	font-family: "Open Sans", sans-serif;
+	--sb-track-color: #f5f5f5;
+	--sb-thumb-color: #013fff;
+	--sb-size: 4px;
+}
+
+body::-webkit-scrollbar {
+	width: var(--sb-size);
+}
+
+body::-webkit-scrollbar-track {
+	background: var(--sb-track-color);
+	border-radius: 2px;
+}
+
+body::-webkit-scrollbar-thumb {
+	background: var(--sb-thumb-color);
+	border-radius: 2px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+	body {
+		scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+	}
+}
+
+/* example: your main scroll container */
+.app-scroll {
+	overflow: auto;
+	height: 100%;
+}
+
+/* WebKit */
+.app-scroll::-webkit-scrollbar {
+	width: var(--sb-size);
+	height: var(--sb-size);
+}
+.app-scroll::-webkit-scrollbar-track {
+	background: var(--sb-track-color);
+	border-radius: 2px;
+}
+.app-scroll::-webkit-scrollbar-thumb {
+	background: var(--sb-thumb-color);
+	border-radius: 2px;
+}
+
+/* Firefox */
+.app-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
 }
 
 @layer utilities {
-  .text-xs-loose {
-    @apply text-xs leading-[2];
-  }
+	.text-xs-loose {
+		@apply text-xs leading-[2];
+	}
 }

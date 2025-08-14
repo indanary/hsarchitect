@@ -1,6 +1,6 @@
 export default function ProfileSection() {
 	return (
-		<div className="h-[400px] w-[652px] mt-23">
+		<div className="h-[400px] w-[652px] mt-19">
 			<span className="text-xs-loose text-white">
 				Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed
 				diam nonummy nibh euismod tincidunt ut laoreet dolore magna

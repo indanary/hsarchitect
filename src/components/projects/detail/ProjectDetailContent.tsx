@@ -24,8 +24,8 @@ export default function ProjectDetailContent({project}: {project: Project}) {
 			content={
 				<ProjectCarousel
 					images={images}
-					wrapperClass="pl-10 overflow-hidden mt-24 hidden sm:block"
-					size="aspect-[800/480]"
+					wrapperClass="pl-18 overflow-hidden mt-22 hidden sm:block"
+					size="w-[800px] h-[540px]"
 				/>
 			}
 		/>

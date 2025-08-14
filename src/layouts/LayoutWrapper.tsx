@@ -31,7 +31,9 @@ export default function LayoutWrapper({
 
 	return (
 		<div
-			className={`w-full min-h-screen sm:h-screen flex flex-col sm:flex-row p-6 sm:p-9 ${bgClass} ${isOpen ? 'fixed' : 'relative'}`}
+			className={`w-full min-h-screen sm:h-screen flex flex-col sm:flex-row p-6 sm:p-9 ${bgClass} ${
+				isOpen ? "fixed" : "relative"
+			}`}
 		>
 			<aside className="flex flex-col h-full w-full sm:w-[24rem]">
 				<div className="w-full flex justify-between items-center">
@@ -109,7 +111,9 @@ export default function LayoutWrapper({
 					</nav>
 				</div>
 
-				<div className={`flex-1 overflow-auto py-10 ${sidebarClass}`}>
+				<div
+					className={`flex-1 overflow-auto py-10 app-scroll ${sidebarClass}`}
+				>
 					{sidebar}
 				</div>
 
