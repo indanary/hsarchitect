@@ -29,30 +29,30 @@ body::-webkit-scrollbar-thumb {
 	}
 }
 
-/* example: your main scroll container */
 .app-scroll {
 	overflow: auto;
-	height: 100%;
 }
 
-/* WebKit */
+/* Scrollbar width */
 .app-scroll::-webkit-scrollbar {
-	width: var(--sb-size);
-	height: var(--sb-size);
+	width: 2px;
 }
-.app-scroll::-webkit-scrollbar-track {
-	background: var(--sb-track-color);
-	border-radius: 2px;
-}
+
+/* Scrollbar thumb */
 .app-scroll::-webkit-scrollbar-thumb {
-	background: var(--sb-thumb-color);
-	border-radius: 2px;
+	background-color: rgba(140, 140, 140, 0.5); /* semi-transparent gray */
+	border-radius: 4px;
+}
+
+/* Scrollbar track */
+.app-scroll::-webkit-scrollbar-track {
+	background-color: transparent;
 }
 
 /* Firefox */
 .app-scroll {
 	scrollbar-width: thin;
-	scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+	scrollbar-color: rgba(140, 140, 140, 0.5) transparent;
 }
 
 @layer utilities {
