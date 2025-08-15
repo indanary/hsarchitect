@@ -112,13 +112,13 @@ export default function LayoutWrapper({
 				</div>
 
 				<div
-					className={`flex-1 overflow-auto py-10 app-scroll ${sidebarClass}`}
+					className={`flex-1 overflow-auto py-10 lg:py-4 xl:py-10 app-scroll ${sidebarClass}`}
 				>
 					{sidebar}
 				</div>
 
 				<nav
-					className={`sm:flex items-center gap-16 hidden ${
+					className={`sm:flex items-center gap-16 hidden pt-2 ${
 						theme === "dark"
 							? "bg-[#071E50] text-white"
 							: "bg-white text-[#071E50]"
@@ -145,7 +145,7 @@ export default function LayoutWrapper({
 			</aside>
 
 			{content && (
-				<main className="flex-1 overflow-hidden pl-0 sm:pl-12">
+				<main className="flex-1 overflow-hidden pl-6 xl:pl-12">
 					{content}
 				</main>
 			)}
