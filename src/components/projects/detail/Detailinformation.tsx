@@ -16,7 +16,7 @@ export default function DetailInformation({project}: {project: Project}) {
 
 	return (
 		<>
-			<div className="w-full hidden sm:flex justify-between gap-12">
+			<div className="w-full hidden sm:flex justify-between gap-12 pr-8 xl:pr-0">
 				{/* Left Side */}
 				<div className="flex flex-col gap-6">
 					<a href="/projects">
