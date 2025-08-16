@@ -87,7 +87,7 @@ export default function ProjectGallery({category}: Readonly<Props>) {
 	if (loading) return <p className="text-white">Loading projects...</p>
 
 	return (
-		<div className="overflow-y-auto max-h-[620px]">
+		<div className="overflow-y-auto max-h-[620px] app-scroll">
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4">
 				{projects.map((project, index) => (
 					<a
