@@ -145,7 +145,7 @@ export default function LayoutWrapper({
 			</aside>
 
 			{content && (
-				<main className="flex-1 overflow-hidden pl-6 xl:pl-12">
+				<main className="flex-1 overflow-hidden pl-0 sm:pl-6 xl:pl-12">
 					{content}
 				</main>
 			)}
