@@ -5,7 +5,7 @@ import ProjectDetailContent from "../../components/projects/detail/ProjectDetail
 // 1) Tell Astro which /projects/<id> pages to generate
 export async function getStaticPaths() {
 	// TODO: replace with your real ids (from JSON, content collection, or API)
-	const ids = ["hs-001", "hs-002", "hs-003"]
+	const ids = ["1"]
 	return ids.map((id) => ({params: {id}}))
 }
 
