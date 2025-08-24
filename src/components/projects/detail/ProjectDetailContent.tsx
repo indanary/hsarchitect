@@ -9,7 +9,7 @@ interface Project {
 	images: string[]
 }
 
-export default function ProjectDetailContent({project}: {project: Project}) {
+export default function ProjectDetailContent({id}: {id: string}) {
 	const images = [
 		"/images/project-example.png",
 		"/images/project-example.png",
@@ -20,7 +20,7 @@ export default function ProjectDetailContent({project}: {project: Project}) {
 		<LayoutWrapper
 			showSearch
 			theme="light"
-			sidebar={<DetailInformation project={project} />}
+			sidebar={<DetailInformation />}
 			content={
 				<ProjectCarousel
 					images={images}

@@ -7,7 +7,7 @@ interface Project {
 	images: string[]
 }
 
-export default function DetailInformation({project}: {project: Project}) {
+export default function DetailInformation() {
 	const images = [
 		"/images/project-example.png",
 		"/images/project-example.png",
