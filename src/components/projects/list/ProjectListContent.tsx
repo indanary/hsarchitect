@@ -1,11 +1,10 @@
 import {useState} from "react"
-
 import LayoutWrapper from "../../../layouts/LayoutWrapper"
 import SelectCategory from "./SelectCategory"
 import ProjectGallery from "./ProjectGallery"
 
 export default function ProjectListContent() {
-	const [category, setCategory] = useState("All")
+	const [typeId, setTypeId] = useState<string | null>(null) // null = All
 
 	return (
 		<LayoutWrapper
@@ -14,10 +13,10 @@ export default function ProjectListContent() {
 					<span className="text-xs-loose font-semibold whitespace-nowrap">
 						Project Type
 					</span>
-					<SelectCategory onSelect={setCategory} />
+					<SelectCategory onSelect={setTypeId} />
 				</div>
 			}
-			content={<ProjectGallery category={category} />}
+			content={<ProjectGallery projectTypeId={typeId} />}
 		/>
 	)
 }

@@ -6,7 +6,7 @@ import react from "@astrojs/react"
 export default defineConfig({
 	site: "https://hsarchitect.id",
 	// Static output is the default; you can also set output: "static"
-	// output: "static",
+	output: "server",
 	vite: {
 		plugins: [tailwindcss()],
 	},

@@ -1,45 +1,64 @@
-import {useState, useEffect} from "react"
+import {useEffect, useState} from "react"
 
 interface Props {
-	onSelect?: (category: string) => void
+	onSelect?: (typeId: string | null) => void // null = All
 }
 
-export default function CategorySelector({onSelect}: Readonly<Props>) {
-	const [categories, setCategories] = useState([
-		"All",
-		"Residenccial",
-		"Commercial",
-		"Retail",
-		"Etc",
-	])
-	const [selectedCategory, setSelectedCategory] = useState("All")
+type ProjectType = {id: number | string; project_type: string}
 
-	// Optional: fetch from API later
-	// useEffect(() => {
-	// 	fetch('/api/categories')
-	// 		.then(res => res.json())
-	// 		.then(data => {
-	// 			setCategories(data.categories);
-	// 		})
-	// 		.catch(console.error);
-	// }, []);
+export default function SelectCategory({onSelect}: Readonly<Props>) {
+	const [categories, setCategories] = useState<ProjectType[]>([])
+	const [selectedId, setSelectedId] = useState<string>("all")
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState<string | null>(null)
 
-	if (categories.length === 0) {
-		return <span className="text-white">Loading...</span>
-	}
+	useEffect(() => {
+		let cancelled = false
+		const ctrl = new AbortController()
+
+		setLoading(true)
+		setError(null)
+
+		fetch("/api/project-types.json", {signal: ctrl.signal})
+			.then(async (r) => {
+				if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
+				return (await r.json()) as ProjectType[]
+			})
+			.then((data) => {
+				if (!cancelled) setCategories(data)
+			})
+			.catch((e) => {
+				if (!cancelled)
+					setError(e.message || "Failed to load categories")
+			})
+			.finally(() => {
+				if (!cancelled) setLoading(false)
+			})
+
+		return () => {
+			cancelled = true
+			ctrl.abort()
+		}
+	}, [])
+
+	if (loading) return <span className="text-white">Loading categories…</span>
+	if (error) return <span className="text-red-400">Failed: {error}</span>
+
+	const allOption = {id: "all", project_type: "All"}
+	const options = [allOption, ...categories]
 
 	return (
 		<div className="flex flex-row flex-wrap sm:flex-col gap-3 text-white font-normal">
-			{categories.map((category) => {
-				const isSelected = selectedCategory === category
-
+			{options.map((opt) => {
+				const id = String(opt.id)
+				const isSelected = selectedId === id
 				return (
 					<span
-						key={category}
+						key={id}
 						className="cursor-pointer text-xs-loose"
 						onClick={() => {
-							setSelectedCategory(category)
-							onSelect?.(category)
+							setSelectedId(id)
+							onSelect?.(id === "all" ? null : id)
 						}}
 						aria-current={isSelected ? "true" : undefined}
 					>
@@ -50,7 +69,7 @@ export default function CategorySelector({onSelect}: Readonly<Props>) {
 									: "border-transparent hover:border-white/40"
 							}`}
 						>
-							{category}
+							{opt.project_type}
 						</span>
 					</span>
 				)
