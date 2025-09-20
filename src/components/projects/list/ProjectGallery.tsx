@@ -87,7 +87,7 @@ export default function ProjectGallery({projectTypeId}: Readonly<Props>) {
 							src={project.imageUrl}
 							alt={project.title}
 							loading="lazy"
-							className="w-full h-auto object-cover transition duration-300 group-hover:brightness-75"
+							className="w-full h-[256px] object-cover transition duration-300 group-hover:brightness-75"
 						/>
 
 						{/* mobile caption */}

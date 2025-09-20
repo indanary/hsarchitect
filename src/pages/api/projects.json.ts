@@ -4,9 +4,10 @@ import {getProjects} from "../../lib/api/projects"
 export const GET: APIRoute = async ({url}) => {
 	try {
 		const typeId = url.searchParams.get("project_type_id") ?? undefined
-		// Pass through as project_type_id (or convert to your backend’s param name)
+		const q = url.searchParams.get("q") ?? undefined
+
 		const data = await getProjects(
-			typeId ? {project_type_id: typeId} : undefined,
+			typeId || q ? {project_type_id: typeId, q} : undefined,
 		)
 
 		return new Response(JSON.stringify(data), {

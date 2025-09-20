@@ -37,10 +37,14 @@ export interface PublicProjectDetail {
 }
 
 /** Public list */
-export async function getProjects(params?: {project_type_id?: string}) {
+export async function getProjects(params?: {
+	project_type_id?: string
+	q?: string
+}) {
 	const sp = new URLSearchParams()
 	if (params?.project_type_id)
 		sp.set("project_type_id", params.project_type_id)
+	if (params?.q) sp.set("q", params.q)
 	const qs = sp.toString() ? `?${sp.toString()}` : ""
 	return apiFetch<PublicProject[]>(`/projects/public${qs}`)
 }
