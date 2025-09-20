@@ -1,42 +1,65 @@
+import {useEffect, useMemo, useState} from "react"
+
+type StudioEntry = {
+	id: number | string
+	type: "profile" | "philosophy" | "achievement"
+	description: string
+}
+
 export default function AchievementSection() {
+	const [data, setData] = useState<StudioEntry | null>(null)
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState<string | null>(null)
+
+	const url = useMemo(() => `/api/studio/achievement.json`, [])
+
+	useEffect(() => {
+		let cancelled = false
+		const ctrl = new AbortController()
+
+		setLoading(true)
+		setError(null)
+
+		fetch(url, {signal: ctrl.signal})
+			.then(async (r) => {
+				if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
+				return (await r.json()) as StudioEntry
+			})
+			.then((json) => {
+				if (!cancelled) setData(json)
+			})
+			.catch((e) => {
+				if (!cancelled) setError(e.message || "Failed to load")
+			})
+			.finally(() => {
+				if (!cancelled) setLoading(false)
+			})
+
+		return () => {
+			cancelled = true
+			ctrl.abort()
+		}
+	}, [url])
+
+	if (loading)
+		return (
+			<div className="h-[400px] w-[652px] mt-19 text-white/80">
+				Loading…
+			</div>
+		)
+	if (error)
+		return (
+			<div className="h-[400px] w-[652px] mt-19 text-red-400">
+				Failed: {error}
+			</div>
+		)
+
 	return (
 		<div className="h-[400px] w-[652px] mt-19">
-			<span className="text-xs-loose text-white">
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed
-				diam nonummy nibh euismod tincidunt ut laoreet dolore magna
-				aliquam erat volutpat. Ut wisi enim ad minim veniam, quis
-				nostrud exerci tation ullamcorper suscipit lobortis nisl ut
-				aliquip ex ea commodo consequat.
-				<br />
-				<br />
-				Duis autem vel eum iriure dolor in hendrerit in vulputate velit
-				esse molestie consequat, vel illum dolore eu feugiat nulla
-				facilisis at vero eros et accumsan et iusto odio dignissim qui
-				blandit praesent luptatum zzril delenit augue duis dolore te
-				feugait nulla facilisi. feugiat nulla facilisis at vero eros et
-				accumsan et iusto odio dignissim qui blandit praesent luptatum
-				zzril delenit augue duis dolore te feugait nulla facilisi.
-				<br />
-				<br />
-				Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed
-				diam nonummy nibh euismod tincidunt ut laoreet dolore magna
-				aliquam erat volutpat. Ut wisi enim ad minim veniam, quis
-				nostrud exerci tation ullamcorper suscipit lobortis nisl ut
-				aliquip ex ea commodo consequat.
-				<br />
-				<br />
-				Duis autem vel eum iriure dolor in hendrerit in vulputate velit
-				esse molestie consequat, vel illum dolore eu feugiat nulla
-				facilisis at vero eros et accumsan et iusto odio dignissim qui
-				blandit praesent luptatum zzril delenit augue duis dolore te
-				feugait nulla facilisi. feugiat nulla facilisis at vero eros et
-				accumsan et iusto odio dignissim qui blandit praesent luptatum
-				zzril delenit augue duis dolore te feugait nulla facilisi.
-				<br />
-				<br />
-				Team Lorem Ipsum, Lorem Ipsum, Lorem Ipsum, Lorem Ipsum, Lorem
-				Ipsum, Lorem Ipsum, Lorem Ipsum
-			</span>
+			<div
+				className="text-xs-loose text-white"
+				dangerouslySetInnerHTML={{__html: data?.description ?? ""}}
+			/>
 		</div>
 	)
 }

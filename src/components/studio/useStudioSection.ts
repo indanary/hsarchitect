@@ -1,17 +1,18 @@
 import {useEffect, useMemo, useState} from "react"
 
-type StudioEntry = {
+export type StudioType = "profile" | "philosophy" | "achievement"
+export interface StudioEntry {
 	id: number | string
-	type: "profile" | "philosophy" | "achievement"
-	description: string
+	type: StudioType
+	description: string // HTML
 }
 
-export default function PhilosophySection() {
+export function useStudioSection(type: StudioType) {
 	const [data, setData] = useState<StudioEntry | null>(null)
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
-	const url = useMemo(() => `/api/studio/philosophy.json`, [])
+	const url = useMemo(() => `/api/studio/${type}.json`, [type])
 
 	useEffect(() => {
 		let cancelled = false
@@ -41,25 +42,5 @@ export default function PhilosophySection() {
 		}
 	}, [url])
 
-	if (loading)
-		return (
-			<div className="h-[400px] w-[652px] mt-19 text-white/80">
-				Loading…
-			</div>
-		)
-	if (error)
-		return (
-			<div className="h-[400px] w-[652px] mt-19 text-red-400">
-				Failed: {error}
-			</div>
-		)
-
-	return (
-		<div className="h-[400px] w-[652px] mt-19">
-			<div
-				className="text-xs-loose text-white"
-				dangerouslySetInnerHTML={{__html: data?.description ?? ""}}
-			/>
-		</div>
-	)
+	return {data, loading, error}
 }
