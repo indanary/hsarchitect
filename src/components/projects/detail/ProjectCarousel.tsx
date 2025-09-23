@@ -1,9 +1,11 @@
 import {useKeenSlider} from "keen-slider/react"
 import "keen-slider/keen-slider.min.css"
-import {useState} from "react"
+import {useMemo, useState} from "react"
+
+type ImageItem = string | {url: string; thumb?: string; alt?: string}
 
 interface ProjectCarouselProps {
-	images: string[]
+	images: ImageItem[]
 	wrapperClass?: string
 	size?: string
 }
@@ -15,6 +17,17 @@ export default function ProjectCarousel({
 }: ProjectCarouselProps) {
 	const [currentSlide, setCurrentSlide] = useState(0)
 	const [loaded, setLoaded] = useState(false)
+
+	// normalize to objects
+	const items = useMemo(
+		() =>
+			images.map((it) =>
+				typeof it === "string"
+					? {url: it, thumb: undefined, alt: undefined}
+					: it,
+			),
+		[images],
+	)
 
 	const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
 		initial: 0,
@@ -34,14 +47,21 @@ export default function ProjectCarousel({
 			<div className="relative">
 				{/* Slider */}
 				<div ref={sliderRef} className="keen-slider overflow-hidden">
-					{images.map((src, index) => (
+					{items.map((img, index) => (
 						<div
 							key={index}
 							className={`keen-slider__slide w-full overflow-hidden ${size}`}
 						>
 							<img
-								src={src}
-								alt={`Image ${index + 1}`}
+								src={img.thumb ?? img.url}
+								srcSet={
+									img.thumb
+										? `${img.thumb} 800w, ${img.url} 1600w`
+										: undefined
+								}
+								sizes="(max-width: 1024px) 90vw, 840px"
+								alt={img.alt ?? `Image ${index + 1}`}
+								loading="lazy"
 								className="w-full h-full object-cover"
 							/>
 						</div>

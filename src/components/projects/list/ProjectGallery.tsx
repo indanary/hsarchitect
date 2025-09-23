@@ -4,8 +4,9 @@ type ApiProject = {
 	id: number | string
 	title: string
 	location?: string
-	// cover fields from your public list API:
+	// cover fields from your public list API (now includes thumb):
 	cover_url?: string | null
+	cover_thumb_url?: string | null
 	cover_file_path?: string | null
 	cover_alt?: string | null
 }
@@ -17,7 +18,8 @@ interface Props {
 type UiProject = {
 	id: number | string
 	title: string
-	imageUrl: string
+	imageUrl: string // 1600w (fallback/main)
+	thumbUrl?: string | null // 800w (thumb)
 	location: string
 }
 
@@ -28,6 +30,7 @@ function mapToUI(p: ApiProject): UiProject {
 		location: p.location ?? "",
 		imageUrl:
 			p.cover_url ?? p.cover_file_path ?? "/images/project-example.png",
+		thumbUrl: p.cover_thumb_url ?? null,
 	}
 }
 
@@ -84,7 +87,13 @@ export default function ProjectGallery({projectTypeId}: Readonly<Props>) {
 						className="relative group overflow-hidden block"
 					>
 						<img
-							src={project.imageUrl}
+							src={project.thumbUrl ?? project.imageUrl}
+							srcSet={
+								project.thumbUrl
+									? `${project.thumbUrl} 800w, ${project.imageUrl} 1600w`
+									: undefined
+							}
+							sizes="(max-width: 640px) 100vw, 33vw"
 							alt={project.title}
 							loading="lazy"
 							className="w-full h-[256px] object-cover transition duration-300 group-hover:brightness-75"
