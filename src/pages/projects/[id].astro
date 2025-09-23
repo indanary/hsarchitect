@@ -2,9 +2,26 @@
 import MainLayout from "../../layouts/MainLayout.astro"
 import ProjectDetailContent from "../../components/projects/detail/ProjectDetailContent"
 
+export async function getStaticPaths() {
+	const BASE = import.meta.env.PUBLIC_API_BASE_URL
+	const r = await fetch(`${BASE}/projects/public`, {cache: "no-store"}).catch(
+		() => null,
+	)
+	const projects = r?.ok ? await r.json() : []
+	return projects.map((p: any) => ({params: {id: String(p.id)}}))
+}
+
+const BASE = import.meta.env.PUBLIC_API_BASE_URL
 const {id} = Astro.params
+let initialProject = null
+try {
+	const r = await fetch(`${BASE}/projects/public/${encodeURIComponent(id)}`, {
+		cache: "no-store",
+	})
+	if (r.ok) initialProject = await r.json()
+} catch {}
 ---
 
-<MainLayout title="Project Detail">
-	<ProjectDetailContent id={id ?? ""} client:load />
+<MainLayout title={initialProject?.title ?? "Project Detail"}>
+	<ProjectDetailContent id={id} initialProject={initialProject} client:load />
 </MainLayout>

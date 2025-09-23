@@ -1,3 +1,4 @@
+// src/components/studio/PhilosophySection.tsx
 import {useEffect, useMemo, useState} from "react"
 
 type StudioEntry = {
@@ -11,7 +12,11 @@ export default function PhilosophySection() {
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
-	const url = useMemo(() => `/api/studio/philosophy.json`, [])
+	// Call your backend directly (no Astro /api/* route)
+	const url = useMemo(
+		() => `${import.meta.env.PUBLIC_API_BASE_URL}/studio/philosophy`,
+		[],
+	)
 
 	useEffect(() => {
 		let cancelled = false
@@ -20,7 +25,7 @@ export default function PhilosophySection() {
 		setLoading(true)
 		setError(null)
 
-		fetch(url, {signal: ctrl.signal})
+		fetch(url, {signal: ctrl.signal, cache: "no-store"})
 			.then(async (r) => {
 				if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
 				return (await r.json()) as StudioEntry
@@ -41,23 +46,27 @@ export default function PhilosophySection() {
 		}
 	}, [url])
 
-	if (loading)
+	if (loading) {
 		return (
 			<div className="h-[400px] w-[652px] mt-19 text-white/80">
 				Loading…
 			</div>
 		)
-	if (error)
+	}
+
+	if (error) {
 		return (
 			<div className="h-[400px] w-[652px] mt-19 text-red-400">
 				Failed: {error}
 			</div>
 		)
+	}
 
 	return (
 		<div className="h-[400px] w-[652px] mt-19">
 			<div
 				className="text-xs-loose text-white"
+				// Ensure the backend returns trusted/sanitized HTML.
 				dangerouslySetInnerHTML={{__html: data?.description ?? ""}}
 			/>
 		</div>

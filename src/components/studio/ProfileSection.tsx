@@ -1,3 +1,4 @@
+// src/components/studio/ProfileSection.tsx
 import {useEffect, useMemo, useState} from "react"
 
 type StudioEntry = {
@@ -11,8 +12,11 @@ export default function ProfileSection() {
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
-	// via Astro proxy; switch to `/studio/profile` if calling backend directly
-	const url = useMemo(() => `/api/studio/profile.json`, [])
+	// Call your backend directly
+	const url = useMemo(
+		() => `${import.meta.env.PUBLIC_API_BASE_URL}/studio/profile`,
+		[],
+	)
 
 	useEffect(() => {
 		let cancelled = false
@@ -21,7 +25,7 @@ export default function ProfileSection() {
 		setLoading(true)
 		setError(null)
 
-		fetch(url, {signal: ctrl.signal})
+		fetch(url, {signal: ctrl.signal, cache: "no-store"})
 			.then(async (r) => {
 				if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
 				return (await r.json()) as StudioEntry
@@ -42,24 +46,27 @@ export default function ProfileSection() {
 		}
 	}, [url])
 
-	if (loading)
+	if (loading) {
 		return (
 			<div className="h-[400px] w-[652px] mt-19 text-white/80">
 				Loading…
 			</div>
 		)
-	if (error)
+	}
+
+	if (error) {
 		return (
 			<div className="h-[400px] w-[652px] mt-19 text-red-400">
 				Failed: {error}
 			</div>
 		)
+	}
 
 	return (
 		<div className="h-[400px] w-[652px] mt-19">
 			<div
 				className="text-xs-loose text-white"
-				// description is trusted HTML from your backend
+				// Ensure the backend returns trusted/sanitized HTML.
 				dangerouslySetInnerHTML={{__html: data?.description ?? ""}}
 			/>
 		</div>

@@ -1,3 +1,4 @@
+// src/components/projects/detail/ProjectDetailContent.tsx
 import {useEffect, useMemo, useState} from "react"
 import LayoutWrapper from "../../../layouts/LayoutWrapper"
 import DetailInformation from "./Detailinformation"
@@ -9,6 +10,8 @@ type ApiImage = {
 	file_url: string | null // absolute URL from backend
 	alt: string | null
 	sort_order: number | null
+	// optional (if your API returns it)
+	thumb_url?: string | null
 }
 
 type ApiProject = {
@@ -24,17 +27,30 @@ type ApiProject = {
 	images: ApiImage[]
 }
 
-export default function ProjectDetailContent({id}: {id: string}) {
-	const [project, setProject] = useState<ApiProject | null>(null)
-	const [loading, setLoading] = useState(true)
+export default function ProjectDetailContent({
+	id,
+	initialProject = null, // <-- optional build-time data
+}: {
+	id: string
+	initialProject?: ApiProject | null
+}) {
+	const [project, setProject] = useState<ApiProject | null>(initialProject)
+	const [loading, setLoading] = useState(!initialProject)
 	const [error, setError] = useState<string | null>(null)
 
+	// call your backend directly (no Astro /api proxy)
 	const url = useMemo(
-		() => `/api/projects/${encodeURIComponent(id)}.json`,
+		() =>
+			`${
+				import.meta.env.PUBLIC_API_BASE_URL
+			}/projects/public/${encodeURIComponent(id)}`,
 		[id],
 	)
 
 	useEffect(() => {
+		// If we already have build-time data, skip client fetch
+		if (initialProject) return
+
 		let cancelled = false
 		const ctrl = new AbortController()
 
@@ -60,11 +76,18 @@ export default function ProjectDetailContent({id}: {id: string}) {
 			cancelled = true
 			ctrl.abort()
 		}
-	}, [url])
+	}, [url, initialProject])
 
-	const images: string[] = (project?.images ?? [])
-		.map((img) => img.file_url || img.file_path)
-		.filter(Boolean) as string[]
+	// Prefer thumb if present; fall back to main URL
+	const images =
+		(project?.images ?? [])
+			.map((img) => ({
+				url: (img.file_url || img.file_path) as string,
+				thumb: img.thumb_url || undefined,
+				alt: img.alt ?? project?.title ?? "",
+			}))
+			// keep strings for backward compatibility with your ProjectCarousel
+			.map((it) => it.thumb ?? it.url) || []
 
 	if (loading) {
 		return (

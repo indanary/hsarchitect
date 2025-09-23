@@ -1,4 +1,5 @@
-import {useEffect, useState} from "react"
+// src/components/projects/list/SelectCategory.tsx
+import {useEffect, useMemo, useState} from "react"
 
 interface Props {
 	onSelect?: (typeId: string | null) => void // null = All
@@ -12,6 +13,12 @@ export default function SelectCategory({onSelect}: Readonly<Props>) {
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 
+	// Call your backend directly (static hosting friendly)
+	const url = useMemo(
+		() => `${import.meta.env.PUBLIC_API_BASE_URL}/project-types/public`,
+		[],
+	)
+
 	useEffect(() => {
 		let cancelled = false
 		const ctrl = new AbortController()
@@ -19,7 +26,7 @@ export default function SelectCategory({onSelect}: Readonly<Props>) {
 		setLoading(true)
 		setError(null)
 
-		fetch("/api/project-types.json", {signal: ctrl.signal})
+		fetch(url, {signal: ctrl.signal, cache: "no-store"})
 			.then(async (r) => {
 				if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
 				return (await r.json()) as ProjectType[]
@@ -39,7 +46,7 @@ export default function SelectCategory({onSelect}: Readonly<Props>) {
 			cancelled = true
 			ctrl.abort()
 		}
-	}, [])
+	}, [url])
 
 	if (loading) return <span className="text-white">Loading categories…</span>
 	if (error) return <span className="text-red-400">Failed: {error}</span>

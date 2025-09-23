@@ -1,17 +1,20 @@
-import {useEffect, useState, useMemo} from "react"
+// src/components/search/SearchResult.tsx
+import {useEffect, useMemo, useState} from "react"
 
 type ApiProject = {
 	id: number | string
 	title: string
 	location?: string | null
 	cover_url?: string | null
+	cover_thumb_url?: string | null
 	cover_file_path?: string | null
 }
 
 type Project = {
 	id: number | string
 	title: string
-	imageUrl: string
+	imageUrl: string // 1600w main (fallback)
+	thumbUrl?: string | null // 800w thumb
 	location: string
 }
 
@@ -29,13 +32,13 @@ export default function SearchResult() {
 		return () => clearTimeout(t)
 	}, [search])
 
-	// Build URL
+	// ✅ Build backend URL directly (static-hosting friendly)
 	const url = useMemo(() => {
 		const sp = new URLSearchParams()
 		if (debouncedSearch) sp.set("q", debouncedSearch)
-		return sp.toString()
-			? `/api/projects.json?${sp.toString()}`
-			: `/api/projects.json`
+		const qs = sp.toString()
+		const base = import.meta.env.PUBLIC_API_BASE_URL
+		return `${base}/projects/public${qs ? `?${qs}` : ""}`
 	}, [debouncedSearch])
 
 	useEffect(() => {
@@ -45,7 +48,7 @@ export default function SearchResult() {
 		setLoading(true)
 		setError(null)
 
-		fetch(url, {signal: ctrl.signal})
+		fetch(url, {signal: ctrl.signal, cache: "no-store"})
 			.then(async (r) => {
 				if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
 				return (await r.json()) as ApiProject[]
@@ -60,6 +63,7 @@ export default function SearchResult() {
 						p.cover_url ??
 						p.cover_file_path ??
 						"/images/project-example.png",
+					thumbUrl: p.cover_thumb_url ?? null,
 				}))
 				setProjects(mapped)
 			})
@@ -85,7 +89,7 @@ export default function SearchResult() {
 				{Array.from({length: 9}).map((_, idx) => (
 					<div
 						key={idx}
-						className="w-full h-[250px] bg-gray-300 animate-pulse"
+						className="w-full h-[256px] bg-gray-300 animate-pulse"
 					/>
 				))}
 			</div>
@@ -106,7 +110,13 @@ export default function SearchResult() {
 						className="relative group overflow-hidden block"
 					>
 						<img
-							src={project.imageUrl}
+							src={project.thumbUrl ?? project.imageUrl}
+							srcSet={
+								project.thumbUrl
+									? `${project.thumbUrl} 800w, ${project.imageUrl} 1600w`
+									: undefined
+							}
+							sizes="(max-width: 640px) 100vw, 33vw"
 							alt={project.title}
 							loading="lazy"
 							className="w-full h-[256px] object-cover transition duration-300 group-hover:brightness-75"

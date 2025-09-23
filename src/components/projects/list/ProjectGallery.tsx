@@ -1,10 +1,10 @@
+// src/components/projects/list/ProjectGallery.tsx
 import {useEffect, useMemo, useState} from "react"
 
 type ApiProject = {
 	id: number | string
 	title: string
 	location?: string
-	// cover fields from your public list API (now includes thumb):
 	cover_url?: string | null
 	cover_thumb_url?: string | null
 	cover_file_path?: string | null
@@ -39,11 +39,13 @@ export default function ProjectGallery({projectTypeId}: Readonly<Props>) {
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
+	// ✅ call backend directly (static-hosting friendly)
 	const url = useMemo(() => {
 		const sp = new URLSearchParams()
 		if (projectTypeId) sp.set("project_type_id", projectTypeId)
 		const qs = sp.toString()
-		return qs ? `/api/projects.json?${qs}` : `/api/projects.json`
+		const base = import.meta.env.PUBLIC_API_BASE_URL
+		return `${base}/projects/public${qs ? `?${qs}` : ""}`
 	}, [projectTypeId])
 
 	useEffect(() => {
@@ -53,7 +55,7 @@ export default function ProjectGallery({projectTypeId}: Readonly<Props>) {
 		setLoading(true)
 		setError(null)
 
-		fetch(url, {signal: ctrl.signal})
+		fetch(url, {signal: ctrl.signal, cache: "no-store"})
 			.then(async (r) => {
 				if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
 				const data = (await r.json()) as ApiProject[]
