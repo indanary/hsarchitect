@@ -1,0 +1,41 @@
+name: Build & Deploy Astro to cPanel
+
+on:
+    workflow_dispatch: {} # manual "Run workflow" button
+    repository_dispatch: # programmatic trigger from your dashboard
+        types: [rebuild]
+
+jobs:
+    build-deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "npm"
+
+            - run: npm ci
+            - name: Build Astro
+              run: npm run build
+              env:
+                  NODE_ENV: production
+                  PUBLIC_API_BASE_URL: ${{ secrets.PUBLIC_API_BASE_URL }}
+
+            # Deploy dist/ to your cPanel public_html via FTPS
+            - name: Deploy via FTPS
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+              with:
+                  server: ${{ secrets.FTP_SERVER }} # e.g. ftp.hsarchitect.id
+                  username: ${{ secrets.FTP_USERNAME }}
+                  password: ${{ secrets.FTP_PASSWORD }}
+                  protocol: ftps
+                  local-dir: dist
+                  server-dir: public_html
+                  # Keep your admin dashboard intact
+                  exclude: |
+                      admin/**
+                      admin/**/*
+                      .well-known/**
