@@ -7,7 +7,7 @@ on:
             deploy:
                 description: 'Set to "true" to perform FTPS deploy (default false)'
                 required: false
-                default: "false"
+                default: "true"
     repository_dispatch:
         types: [rebuild]
 
