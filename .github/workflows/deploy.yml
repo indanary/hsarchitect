@@ -4,9 +4,9 @@ on:
     workflow_dispatch:
         inputs:
             deploy:
-                description: 'Set to "true" to perform FTPS deploy (default true)'
+                description: 'Set to "true" to perform FTPS deploy after build (default: false for safety)'
                 required: false
-                default: "true"
+                default: "false"
     repository_dispatch:
         types: [rebuild]
 
@@ -16,15 +16,23 @@ concurrency:
 
 permissions:
     contents: read
-    actions: read
 
 jobs:
     build-deploy:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Checkout
+            - name: Checkout repository
               uses: actions/checkout@v4
+
+            - name: Prepare prerender payload (from repository_dispatch)
+              if: github.event_name == 'repository_dispatch' && github.event.client_payload != ''
+              run: |
+                  echo "Client payload: ${{ toJson(github.event.client_payload) }}"
+                  # Write the slugs array (if provided) to a file for the prepare script to consume
+                  echo "${{ toJson(github.event.client_payload.slugs) }}" > .prerender_payload.json
+                  # Set PRERENDER_SLUGS env for compatibility; GitHub will treat this as a string (JSON array or CSV)
+                  echo "PRERENDER_SLUGS=${{ toJson(github.event.client_payload.slugs) }}" >> $GITHUB_ENV
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
@@ -32,17 +40,26 @@ jobs:
                   node-version: "20"
                   cache: "npm"
 
-            - name: Clean install (fix rollup optional deps)
+            - name: Clean install (fix rollup optional deps on CI)
               run: |
+                  # Remove lockfile + node_modules and install fresh on runner to ensure platform-specific optional deps are resolved correctly
                   rm -rf node_modules package-lock.json
                   npm install
+
+            - name: Prepare prerender file
+              run: npm run prepare:prerender
+              # ensure PRERENDER_SLUGS is available to the script if set by dispatch
+              env:
+                  PRERENDER_SLUGS: ${{ env.PRERENDER_SLUGS || '' }}
 
             - name: Build Astro
               run: npm run build
               env:
                   NODE_ENV: production
                   PUBLIC_API_BASE_URL: ${{ secrets.PUBLIC_API_BASE_URL }}
+                  PRERENDER_SLUGS: ${{ env.PRERENDER_SLUGS || '' }}
 
+            # Optional deploy: guarded so you can run build-only
             - name: Ensure FTP secrets set
               if: >
                   github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
@@ -50,165 +67,29 @@ jobs:
 
               run: |
                   if [ -z "${{ secrets.FTP_SERVER }}" ] || [ -z "${{ secrets.FTP_USERNAME }}" ] || [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
-                    echo "::error::Missing one or more FTP secrets (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)."
+                    echo "::error::Missing one or more FTP secrets (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD). Set them in Repo Settings -> Secrets and Variables -> Actions."
                     exit 1
                   fi
 
-            - name: Upload detect working protocol + upload (debug)
+            - name: Deploy via FTPS (safe test folder)
               if: >
                   github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
 
 
-              env:
-                  FTP_SERVER: ${{ secrets.FTP_SERVER }}
-                  FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-                  FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-              run: |
-                  set -euo pipefail
-                  sudo apt-get update
-                  sudo apt-get install -y lftp dnsutils openssh-client
-
-                  echo "Resolve IPv4 for $FTP_SERVER"
-                  HOST_IP=$(dig +short A "$FTP_SERVER" | head -n 1 || true)
-                  if [ -z "$HOST_IP" ]; then
-                    echo "No A record found for $FTP_SERVER — will use hostname directly"
-                    HOST="$FTP_SERVER"
-                  else
-                    echo "Resolved IPv4 for $FTP_SERVER => $HOST_IP"
-                    HOST="$HOST_IP"
-                  fi
-
-                  # Try both username forms: full and the part before @ (if present)
-                  RAW_USER="$FTP_USERNAME"
-                  ALT_USER="${FTP_USERNAME%@*}"
-                  if [ "$ALT_USER" = "$RAW_USER" ]; then
-                    USERS=("$RAW_USER")
-                  else
-                    USERS=("$RAW_USER" "$ALT_USER")
-                  fi
-
-                  echo "Will attempt connections using usernames: ${USERS[*]// /, }"
-                  SUCCESS=0
-
-                  try_lftp() {
-                    local proto="$1"   # ftp | ftps21 | ftps990 | sftp
-                    local host="$2"
-                    local user="$3"
-                    echo
-                    echo "---- Trying $proto with user='$user' host='$host' ----"
-                    case "$proto" in
-                      ftps21)
-                        lftp -d -u "$user","$FTP_PASSWORD" -e "set ftp:ssl-force true; set ftp:ssl-protect-data true; set ssl:verify-certificate no; set ftp:passive-mode true; set net:timeout 15; ls; quit" "ftps://$host:21" 2>&1 | sed -n '1,200p'
-                        ;;
-                      ftps990)
-                        lftp -d -u "$user","$FTP_PASSWORD" -e "set ftp:ssl-force true; set ftp:ssl-protect-data true; set ssl:verify-certificate no; set ftp:passive-mode true; set net:timeout 15; ls; quit" "ftps://$host:990" 2>&1 | sed -n '1,200p'
-                        ;;
-                      ftp)
-                        lftp -d -u "$user","$FTP_PASSWORD" -e "set ftp:ssl-force false; set ftp:ssl-protect-data false; set ftp:passive-mode true; set net:timeout 15; ls; quit" "ftp://$host:21" 2>&1 | sed -n '1,200p'
-                        ;;
-                      sftp)
-                        # lftp@sftp or plain sftp listing
-                        lftp -d -u "$user","$FTP_PASSWORD" -e "set net:timeout 15; ls; quit" "sftp://$host" 2>&1 | sed -n '1,200p'
-                        ;;
-                    esac
-                  }
-
-                  # Test each protocol and username
-                  for u in "${USERS[@]}"; do
-                    if [ $SUCCESS -eq 1 ]; then break; fi
-
-                    # explicit FTPS on 21
-                    if try_lftp "ftps21" "$HOST" "$u"; then
-                      echo "SUCCESS: explicit FTPS (21) with user '$u'"
-                      SUCCESS=1
-                      CHOSEN_PROTO="ftps21"
-                      CHOSEN_USER="$u"
-                      break
-                    else
-                      echo "FAILED: explicit FTPS (21) with user '$u'"
-                    fi
-
-                    # implicit FTPS on 990
-                    if try_lftp "ftps990" "$HOST" "$u"; then
-                      echo "SUCCESS: implicit FTPS (990) with user '$u'"
-                      SUCCESS=1
-                      CHOSEN_PROTO="ftps990"
-                      CHOSEN_USER="$u"
-                      break
-                    else
-                      echo "FAILED: implicit FTPS (990) with user '$u'"
-                    fi
-
-                    # plain FTP on 21
-                    if try_lftp "ftp" "$HOST" "$u"; then
-                      echo "SUCCESS: plain FTP (21) with user '$u'"
-                      SUCCESS=1
-                      CHOSEN_PROTO="ftp"
-                      CHOSEN_USER="$u"
-                      break
-                    else
-                      echo "FAILED: plain FTP (21) with user '$u'"
-                    fi
-
-                    # sftp
-                    if try_lftp "sftp" "$HOST" "$u"; then
-                      echo "SUCCESS: SFTP (22) with user '$u'"
-                      SUCCESS=1
-                      CHOSEN_PROTO="sftp"
-                      CHOSEN_USER="$u"
-                      break
-                    else
-                      echo "FAILED: SFTP (22) with user '$u'"
-                    fi
-                  done
-
-                  if [ $SUCCESS -ne 1 ]; then
-                    echo "::error::All connection attempts failed. See logs above for lftp output. Please verify protocol, credentials, and whether your host requires an alternate username or IP whitelist."
-                    exit 1
-                  fi
-
-                  echo "Proceeding to mirror using $CHOSEN_PROTO and user $CHOSEN_USER"
-
-                  # perform mirror according to chosen protocol
-                  case "$CHOSEN_PROTO" in
-                    ftps21)
-                      lftp -d -u "$CHOSEN_USER","$FTP_PASSWORD" -e "
-                        set ftp:ssl-force true;
-                        set ftp:ssl-protect-data true;
-                        set ssl:verify-certificate no;
-                        set ftp:passive-mode true;
-                        mirror -R --verbose dist/ public_html/test-deploy/;
-                        quit
-                      " "ftps://$HOST:21"
-                      ;;
-                    ftps990)
-                      lftp -d -u "$CHOSEN_USER","$FTP_PASSWORD" -e "
-                        set ftp:ssl-force true;
-                        set ftp:ssl-protect-data true;
-                        set ssl:verify-certificate no;
-                        set ftp:passive-mode true;
-                        mirror -R --verbose dist/ public_html/test-deploy/;
-                        quit
-                      " "ftps://$HOST:990"
-                      ;;
-                    ftp)
-                      lftp -d -u "$CHOSEN_USER","$FTP_PASSWORD" -e "
-                        set ftp:ssl-force false;
-                        set ftp:ssl-protect-data false;
-                        set ftp:passive-mode true;
-                        mirror -R --verbose dist/ public_html/test-deploy/;
-                        quit
-                      " "ftp://$HOST:21"
-                      ;;
-                    sftp)
-                      lftp -d -u "$CHOSEN_USER","$FTP_PASSWORD" -e "
-                        mirror -R --verbose dist/ /home/$CHOSEN_USER/public_html/test-deploy/;
-                        quit
-                      " "sftp://$HOST"
-                      ;;
-                  esac
-
-                  echo "Upload finished."
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+              with:
+                  server: ${{ secrets.FTP_SERVER }} # e.g. ftp.hsarchitect.id
+                  username: ${{ secrets.FTP_USERNAME }}
+                  password: ${{ secrets.FTP_PASSWORD }}
+                  protocol: ftps
+                  local-dir: dist/ # must end with '/'
+                  # default is test folder so you don't overwrite production unintentionally
+                  server-dir: public_html/test-deploy/
+                  # Keep your admin dashboard / other assets intact
+                  exclude: |
+                      admin/**
+                      admin/**/*
+                      .well-known/**
 
             - name: Done
-              run: echo "Build (and optional deploy) finished"
+              run: echo "✅ Build (and optional deploy) finished"

@@ -1,14 +1,73 @@
 ---
+import fs from "fs"
+import path from "path"
 import MainLayout from "../../layouts/MainLayout.astro"
 import ProjectDetailContent from "../../components/projects/detail/ProjectDetailContent"
 
 export async function getStaticPaths() {
+	// Try build-time inputs:
+	// 1) PRERENDER_SLUGS environment variable (set by CI): either JSON array or CSV
+	// 2) prerender-slugs.json file created by CI
+	const tryFromEnv = () => {
+		try {
+			const raw = import.meta.env.PRERENDER_SLUGS || ""
+			if (!raw) return []
+			// try parse as JSON array
+			try {
+				const parsed = JSON.parse(raw)
+				if (Array.isArray(parsed)) return parsed.map(String)
+			} catch (e) {
+				// not JSON — try CSV
+				return raw
+					.split(",")
+					.map((s) => s.trim())
+					.filter(Boolean)
+					.map(String)
+			}
+		} catch (e) {
+			return []
+		}
+		return []
+	}
+
+	const tryFromFile = () => {
+		try {
+			const jsonPath = path.resolve("./prerender-slugs.json")
+			if (fs.existsSync(jsonPath)) {
+				const raw = fs.readFileSync(jsonPath, "utf-8")
+				const parsed = JSON.parse(raw || "[]")
+				if (Array.isArray(parsed)) return parsed.map(String)
+			}
+		} catch (e) {
+			// ignore and fallback
+			console.warn("Could not read prerender-slugs.json", e)
+		}
+		return []
+	}
+
+	let ids = tryFromEnv()
+	if (ids.length === 0) ids = tryFromFile()
+
+	if (ids.length > 0) {
+		// Provided selective ids — generate only these pages
+		return ids.map((id) => ({params: {id: String(id)}}))
+	}
+
+	// Fallback: fetch all publicly available projects (original behavior)
 	const BASE = import.meta.env.PUBLIC_API_BASE_URL
-	const r = await fetch(`${BASE}/projects/public`, {cache: "no-store"}).catch(
-		() => null,
-	)
-	const projects = r?.ok ? await r.json() : []
-	return projects.map((p: any) => ({params: {id: String(p.id)}}))
+	try {
+		// use fetch without cache so we get the latest list at build-time
+		// (this may be an API call to your backend)
+		const r = await fetch(`${BASE}/projects/public`, {
+			cache: "no-store",
+		}).catch(() => null)
+		const projects = r?.ok ? await r.json() : []
+		return projects.map((p) => ({params: {id: String(p.id)}}))
+	} catch (err) {
+		// If even this fails, return an empty list so build doesn't crash unexpectedly
+		console.warn("Failed to fetch project list in getStaticPaths:", err)
+		return []
+	}
 }
 
 const BASE = import.meta.env.PUBLIC_API_BASE_URL
@@ -19,7 +78,9 @@ try {
 		cache: "no-store",
 	})
 	if (r.ok) initialProject = await r.json()
-} catch {}
+} catch (err) {
+	// ignore; initialProject stays null
+}
 ---
 
 <MainLayout title={initialProject?.title ?? "Project Detail"}>
