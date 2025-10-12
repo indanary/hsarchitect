@@ -1,31 +1,56 @@
 name: Build & Deploy Astro to cPanel
 
+# triggers
 on:
-    workflow_dispatch: {} # manual "Run workflow" button
-    repository_dispatch: # programmatic trigger from your dashboard
+    workflow_dispatch:
+        inputs:
+            deploy:
+                description: 'Set to "true" to perform FTPS deploy (default false)'
+                required: false
+                default: "false"
+    repository_dispatch:
         types: [rebuild]
+
+concurrency:
+    group: build-deploy-${{ github.ref_name || github.sha }}
+    cancel-in-progress: true
+
+# GITHUB_TOKEN permissions for this workflow (minimal)
+permissions:
+    contents: read
+    actions: read
+    # If the workflow needs to create workflow runs or manipulate workflow runs via GITHUB_TOKEN,
+    # change `actions: write` — but that should not be necessary for a simple build+deploy.
 
 jobs:
     build-deploy:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout
+              uses: actions/checkout@v4
 
-            - uses: actions/setup-node@v4
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
               with:
                   node-version: "20"
                   cache: "npm"
 
-            - run: npm ci
+            - name: Install deps
+              run: npm ci
+
             - name: Build Astro
               run: npm run build
               env:
                   NODE_ENV: production
                   PUBLIC_API_BASE_URL: ${{ secrets.PUBLIC_API_BASE_URL }}
 
-            # Deploy dist/ to your cPanel public_html via FTPS
+            # Deploy via FTPS - guarded so you can test build-only
             - name: Deploy via FTPS
+              if: >
+                  github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
+
+
               uses: SamKirkland/FTP-Deploy-Action@v4.3.4
               with:
                   server: ${{ secrets.FTP_SERVER }} # e.g. ftp.hsarchitect.id
@@ -34,8 +59,10 @@ jobs:
                   protocol: ftps
                   local-dir: dist
                   server-dir: public_html
-                  # Keep your admin dashboard intact
                   exclude: |
                       admin/**
                       admin/**/*
                       .well-known/**
+
+            - name: Done
+              run: echo "Build (and optional deploy) finished"
