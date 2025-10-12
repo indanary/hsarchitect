@@ -54,7 +54,7 @@ jobs:
                     exit 1
                   fi
 
-            - name: Upload via lftp (explicit FTPS :21, test folder)
+            - name: Upload via lftp (explicit FTPS :21, test folder — force IPv4 by resolving A record)
               if: >
                   github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
 
@@ -66,10 +66,20 @@ jobs:
               run: |
                   set -euo pipefail
                   sudo apt-get update
-                  sudo apt-get install -y lftp
+                  sudo apt-get install -y lftp dnsutils
+
+                  # Resolve an IPv4 address for the FTP server and fall back to the hostname if none found
+                  HOST_IP=$(dig +short A "$FTP_SERVER" | head -n 1 || true)
+                  if [ -z "$HOST_IP" ]; then
+                    echo "No A record found for $FTP_SERVER — will use hostname directly (may try IPv6)."
+                    HOST="$FTP_SERVER"
+                  else
+                    echo "Resolved IPv4 for $FTP_SERVER => $HOST_IP"
+                    HOST="$HOST_IP"
+                  fi
+
                   # Upload dist/ to a test folder first. Change public_html/test-deploy/ => public_html/ when ready.
                   lftp -d -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
-                    set net:prefer-ipv4 true;
                     set ftp:ssl-force true;
                     set ftp:ssl-protect-data true;
                     set ssl:verify-certificate no;   # remove or replace with proper CA in production
@@ -78,7 +88,7 @@ jobs:
                     set net:max-retries 2;
                     mirror -R --verbose dist/ public_html/test-deploy/;
                     quit
-                  " ftps://$FTP_SERVER:21
+                  " ftps://$HOST:21
 
             - name: Done
               run: echo "Build (and optional deploy) finished"
