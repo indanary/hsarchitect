@@ -19,8 +19,6 @@ concurrency:
 permissions:
     contents: read
     actions: read
-    # If the workflow needs to create workflow runs or manipulate workflow runs via GITHUB_TOKEN,
-    # change `actions: write` — but that should not be necessary for a simple build+deploy.
 
 jobs:
     build-deploy:
@@ -36,8 +34,10 @@ jobs:
                   node-version: "20"
                   cache: "npm"
 
-            - name: Install deps
-              run: npm ci
+            - name: Clean install (fix rollup optional deps)
+              run: |
+                  rm -rf node_modules package-lock.json
+                  npm install
 
             - name: Build Astro
               run: npm run build
