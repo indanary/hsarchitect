@@ -1,11 +1,10 @@
 name: Build & Deploy Astro to cPanel
 
-# triggers
 on:
     workflow_dispatch:
         inputs:
             deploy:
-                description: 'Set to "true" to perform FTPS deploy (default false)'
+                description: 'Set to "true" to perform FTPS deploy (default true)'
                 required: false
                 default: "true"
     repository_dispatch:
@@ -15,7 +14,6 @@ concurrency:
     group: build-deploy-${{ github.ref_name || github.sha }}
     cancel-in-progress: true
 
-# GITHUB_TOKEN permissions for this workflow (minimal)
 permissions:
     contents: read
     actions: read
@@ -45,24 +43,41 @@ jobs:
                   NODE_ENV: production
                   PUBLIC_API_BASE_URL: ${{ secrets.PUBLIC_API_BASE_URL }}
 
-            # Deploy via FTPS - guarded so you can test build-only
-            - name: Deploy via FTPS
+            - name: Ensure FTP secrets set
               if: >
                   github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
 
 
-              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-              with:
-                  server: ${{ secrets.FTP_SERVER }} # e.g. ftp.hsarchitect.id
-                  username: ${{ secrets.FTP_USERNAME }}
-                  password: ${{ secrets.FTP_PASSWORD }}
-                  protocol: ftps
-                  local-dir: dist/
-                  server-dir: public_html/
-                  exclude: |
-                      admin/**
-                      admin/**/*
-                      .well-known/**
+              run: |
+                  if [ -z "${{ secrets.FTP_SERVER }}" ] || [ -z "${{ secrets.FTP_USERNAME }}" ] || [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
+                    echo "::error::Missing one or more FTP secrets (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD). Set them in Repo Settings -> Secrets and Variables -> Actions."
+                    exit 1
+                  fi
+
+            - name: Upload via lftp (explicit FTPS :21, test folder)
+              if: >
+                  github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
+
+
+              env:
+                  FTP_SERVER: ${{ secrets.FTP_SERVER }}
+                  FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+                  FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y lftp
+                  # Upload dist/ to a test folder first. Change public_html/test-deploy/ => public_html/ when ready.
+                  lftp -d -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
+                    set ftp:prefer-ipv4 true;
+                    set ftp:ssl-force true;
+                    set ftp:ssl-protect-data true;
+                    set ssl:verify-certificate no;   # remove or replace with proper CA in production
+                    set ftp:passive-mode true;
+                    set net:timeout 20;
+                    set net:max-retries 2;
+                    mirror -R --verbose dist/ public_html/test-deploy/;
+                    quit
+                  " ftps://$FTP_SERVER:21
 
             - name: Done
               run: echo "Build (and optional deploy) finished"
