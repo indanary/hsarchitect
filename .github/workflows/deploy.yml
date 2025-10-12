@@ -50,7 +50,7 @@ jobs:
 
               run: |
                   if [ -z "${{ secrets.FTP_SERVER }}" ] || [ -z "${{ secrets.FTP_USERNAME }}" ] || [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
-                    echo "::error::Missing one or more FTP secrets (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD). Set them in Repo Settings -> Secrets and Variables -> Actions."
+                    echo "::error::Missing one or more FTP secrets (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)."
                     exit 1
                   fi
 
@@ -64,11 +64,12 @@ jobs:
                   FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
                   FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
               run: |
+                  set -euo pipefail
                   sudo apt-get update
                   sudo apt-get install -y lftp
                   # Upload dist/ to a test folder first. Change public_html/test-deploy/ => public_html/ when ready.
                   lftp -d -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
-                    set ftp:prefer-ipv4 true;
+                    set net:prefer-ipv4 true;
                     set ftp:ssl-force true;
                     set ftp:ssl-protect-data true;
                     set ssl:verify-certificate no;   # remove or replace with proper CA in production
