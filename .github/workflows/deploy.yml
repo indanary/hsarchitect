@@ -51,6 +51,7 @@ jobs:
                   node-version: "20"
                   cache: "npm"
 
+            # Fix Rollup optional-native on Linux
             - name: Clean install for Linux (rollup fix)
               run: |
                   rm -rf node_modules package-lock.json
@@ -73,24 +74,11 @@ jobs:
                   test -d dist && echo "dist folder exists."
                   [ "$(ls -A dist | wc -l)" -gt 0 ] || (echo "dist is empty" && exit 1)
 
-            # Deploy only from prod branch and when requested
-            - name: Ensure FTP secrets set
+            # ------- DEPLOY (robust FTPS with fallbacks) -------
+            - name: Deploy via lftp (robust FTPS with fallbacks)
               if: >
                   (github.ref_name == 'prod') && (github.event_name == 'repository_dispatch' ||
                    (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true'))
-
-
-              run: |
-                  if [ -z "${{ secrets.FTP_SERVER }}" ] || [ -z "${{ secrets.FTP_USERNAME }}" ] || [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
-                    echo "::error::Missing one or more FTP secrets (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)."
-                    exit 1
-                  fi
-
-            - name: Deploy via lftp (explicit FTPS :21, passive)
-              if: >
-                  (github.ref_name == 'prod') && (github.event_name == 'repository_dispatch' ||
-                   (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true'))
-
 
               env:
                   FTP_SERVER: ${{ secrets.FTP_SERVER }} # e.g. ftp.hsarchitect.id
@@ -98,15 +86,101 @@ jobs:
                   FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
               run: |
                   set -euo pipefail
+
+                  if [ -z "${FTP_SERVER:-}" ] || [ -z "${FTP_USERNAME:-}" ] || [ -z "${FTP_PASSWORD:-}" ]; then
+                    echo "::error::Missing one or more FTP secrets (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)."
+                    exit 1
+                  fi
+
                   sudo apt-get update
-                  sudo apt-get install -y lftp
-                  lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
-                    set ftp:ssl-force true;
-                    set ftp:ssl-protect-data true;
-                    set ssl:verify-certificate no;   # remove once cert path is trusted
-                    set ftp:passive-mode true;
-                    set net:timeout 30;
-                    set net:max-retries 2;
-                    mirror -R --verbose dist/ public_html/;
-                    quit
-                  " ftps://$FTP_SERVER:21
+                  sudo apt-get install -y lftp dnsutils
+
+                  # Prefer IPv4 to avoid AAAA/IPv6 stalls
+                  HOST_IP="$(dig +short A "$FTP_SERVER" | head -n1 || true)"
+                  if [ -z "$HOST_IP" ]; then
+                    echo "No A record; using hostname $FTP_SERVER"
+                    HOST="$FTP_SERVER"
+                  else
+                    echo "Resolved $FTP_SERVER => $HOST_IP"
+                    HOST="$HOST_IP"
+                  fi
+
+                  lftp_ls() {
+                    local url="$1"
+                    echo "Testing list on: $url"
+                    lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
+                      set cmd:fail-exit true;
+                      set ftp:passive-mode true;
+                      set ftp:prefer-epsv false;
+                      set ftp:ssl-session-reuse off;
+                      set ftp:ssl-force true;
+                      set ftp:ssl-protect-data true;
+                      set ssl:verify-certificate no;
+                      set net:timeout 20;
+                      set net:max-retries 1;
+                      ls;
+                      quit
+                    " "$url"
+                  }
+
+                  lftp_upload() {
+                    local url="$1"
+                    echo "Uploading via: $url"
+                    lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
+                      set cmd:fail-exit true;
+                      set ftp:passive-mode true;
+                      set ftp:prefer-epsv false;
+                      set ftp:ssl-session-reuse off;
+                      set ftp:ssl-force true;
+                      set ftp:ssl-protect-data true;
+                      set ssl:verify-certificate no;   # consider removing if cert is valid/chain present
+                      set net:timeout 30;
+                      set net:max-retries 2;
+                      mirror -R --verbose dist/ public_html/;
+                      quit
+                    " "$url"
+                  }
+
+                  # 1) Explicit FTPS on 21
+                  if lftp_ls "ftps://$HOST:21"; then
+                    lftp_upload "ftps://$HOST:21"
+                    exit 0
+                  else
+                    echo "FTPS 21 failed to list. Trying implicit FTPS 990…"
+                  fi
+
+                  # 2) Implicit FTPS on 990
+                  if lftp_ls "ftps://$HOST:990"; then
+                    lftp_upload "ftps://$HOST:990"
+                    exit 0
+                  else
+                    echo "FTPS 990 failed to list. Trying plain FTP 21 (last resort)…"
+                  fi
+
+                  # 3) Plain FTP (insecure, last resort)
+                  if lftp -u "$FTP_USERNAME",""$FTP_PASSWORD" -e "
+                        set cmd:fail-exit true;
+                        set ftp:passive-mode true;
+                        set ftp:prefer-epsv false;
+                        set net:timeout 20;
+                        set net:max-retries 1;
+                        ls;
+                        quit
+                      " "ftp://$HOST:21"; then
+                    lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
+                      set cmd:fail-exit true;
+                      set ftp:passive-mode true;
+                      set ftp:prefer-epsv false;
+                      set net:timeout 30;
+                      set net:max-retries 2;
+                      mirror -R --verbose dist/ public_html/;
+                      quit
+                    " "ftp://$HOST:21"
+                    exit 0
+                  fi
+
+                  echo "::error::All connection attempts failed. If FTPS still fails, ask the host to confirm protocol (explicit 21 vs implicit 990) and ensure passive port range is open. Consider SFTP instead."
+                  exit 1
+            # ---------------------------------------------------
+            - name: Done
+              run: echo "✅ Production build (and deploy if enabled) finished"
