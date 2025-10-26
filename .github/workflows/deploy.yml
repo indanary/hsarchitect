@@ -53,9 +53,12 @@ jobs:
                   node-version: "20"
                   cache: "npm"
 
-            # Reproducible installs; ensure lockfile is Linux-friendly
-            - name: Install dependencies (npm ci)
-              run: npm ci
+            # Rollup optional-deps fix on Linux runners:
+            # regenerate lockfile on runner and fresh install to pull the correct native binary (@rollup/rollup-linux-*)
+            - name: Clean install for Linux (rollup fix)
+              run: |
+                  rm -rf node_modules package-lock.json
+                  npm install --no-audit --no-fund
 
             - name: Prepare prerender file
               run: npm run prepare:prerender
@@ -95,12 +98,12 @@ jobs:
 
               uses: SamKirkland/FTP-Deploy-Action@v4.3.4
               with:
-                  server: ${{ secrets.FTP_SERVER }} # e.g. ftp.hsarchitect.id
+                  server: ${{ secrets.FTP_SERVER }}
                   username: ${{ secrets.FTP_USERNAME }}
                   password: ${{ secrets.FTP_PASSWORD }}
                   protocol: ftps
-                  local-dir: dist/ # must end with '/'
-                  server-dir: public_html/ # PRODUCTION target
+                  local-dir: dist/
+                  server-dir: public_html/
                   exclude: |
                       admin/**
                       admin/**/*
