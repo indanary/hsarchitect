@@ -53,7 +53,7 @@ jobs:
                   node-version: "20"
                   cache: "npm"
 
-            # For production, prefer locked installs. Ensure lockfile was generated on Linux.
+            # Reproducible installs; ensure lockfile is Linux-friendly
             - name: Install dependencies (npm ci)
               run: npm ci
 
@@ -72,15 +72,14 @@ jobs:
             - name: Sanity check build output
               run: |
                   test -d dist && echo "dist folder exists."
-                  test -f dist/index.html || echo "Note: no top-level index.html (may be routed-only site)."
-                  # Fail if dist is empty:
-                  [ "$(ls -A dist | wc -l)" -gt 0 ]
+                  [ "$(ls -A dist | wc -l)" -gt 0 ] || (echo "dist is empty" && exit 1)
 
             # Deploy only from prod branch and only when requested
             - name: Ensure FTP secrets set
               if: >
                   (github.ref_name == 'prod') && (github.event_name == 'repository_dispatch' ||
                    (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true'))
+
 
               run: |
                   if [ -z "${{ secrets.FTP_SERVER }}" ] || [ -z "${{ secrets.FTP_USERNAME }}" ] || [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
@@ -92,6 +91,7 @@ jobs:
               if: >
                   (github.ref_name == 'prod') && (github.event_name == 'repository_dispatch' ||
                    (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true'))
+
 
               uses: SamKirkland/FTP-Deploy-Action@v4.3.4
               with:
