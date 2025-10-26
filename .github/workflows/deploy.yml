@@ -29,14 +29,17 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
-              with: {fetch-depth: 1}
+              with:
+                  fetch-depth: 1
 
+            # Accept slugs from repository_dispatch (backend-triggered)
             - name: Prepare prerender payload (repo_dispatch)
               if: github.event_name == 'repository_dispatch' && github.event.client_payload != ''
               run: |
                   echo '${{ toJson(github.event.client_payload.slugs) }}' > .prerender_payload.json
                   echo "PRERENDER_SLUGS=${{ toJson(github.event.client_payload.slugs) }}" >> $GITHUB_ENV
 
+            # Accept slugs from workflow_dispatch (manual run with inputs)
             - name: Inject slugs (workflow_dispatch)
               if: github.event_name == 'workflow_dispatch' && github.event.inputs.slugs != ''
               run: |
@@ -48,7 +51,7 @@ jobs:
                   node-version: "20"
                   cache: "npm"
 
-            # Rollup optional native fix
+            # Rollup optional-native fix on Linux: rebuild lockfile on runner
             - name: Clean install (Linux)
               run: |
                   rm -rf node_modules package-lock.json
@@ -83,21 +86,31 @@ jobs:
                   set -euo pipefail
                   BRANCH="compiled-site"
                   PUBLISH_DIR="dist"
+                  GIT_NAME="github-actions[bot]"
+                  GIT_EMAIL="github-actions[bot]@users.noreply.github.com"
 
-                  git config user.name "github-actions[bot]"
-                  git config user.email "github-actions[bot]@users.noreply.github.com"
-
-                  git fetch origin $BRANCH || true
-
+                  # Prepare clean publish dir
                   rm -rf .publish && mkdir -p .publish
                   cp -a "$PUBLISH_DIR/." .publish/
 
                   cd .publish
                   git init
-                  git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+                  git config init.defaultBranch "$BRANCH"
+                  git config user.name  "$GIT_NAME"
+                  git config user.email "$GIT_EMAIL"
                   git checkout -b "$BRANCH"
+
+                  # Small convenience files
                   echo > .nojekyll
                   echo "Compiled site branch. Do not edit." > README.md
+
                   git add -A
+                  # If nothing changed, exit cleanly
+                  if git diff --cached --quiet; then
+                    echo "No changes to publish."
+                    exit 0
+                  fi
+
                   git commit -m "Publish compiled site from ${GITHUB_SHA} ($(date -u +'%Y-%m-%dT%H:%M:%SZ'))"
+                  git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
                   git push -f origin "$BRANCH"
