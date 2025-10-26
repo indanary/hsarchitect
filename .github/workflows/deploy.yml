@@ -4,9 +4,13 @@ on:
     workflow_dispatch:
         inputs:
             deploy:
-                description: 'Set to "true" to perform FTPS deploy after build (default: false for safety)'
+                description: "Deploy after build (true/false)"
                 required: false
-                default: "false"
+                default: "true"
+            slugs:
+                description: "JSON array of slugs to prerender"
+                required: false
+                default: "[]"
     repository_dispatch:
         types: [rebuild]
 
@@ -25,14 +29,20 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
+            # Accept slugs from repository_dispatch (backend-triggered)
             - name: Prepare prerender payload (from repository_dispatch)
               if: github.event_name == 'repository_dispatch' && github.event.client_payload != ''
               run: |
                   echo "Client payload: ${{ toJson(github.event.client_payload) }}"
-                  # Write the slugs array (if provided) to a file for the prepare script to consume
                   echo "${{ toJson(github.event.client_payload.slugs) }}" > .prerender_payload.json
-                  # Set PRERENDER_SLUGS env for compatibility; GitHub will treat this as a string (JSON array or CSV)
                   echo "PRERENDER_SLUGS=${{ toJson(github.event.client_payload.slugs) }}" >> $GITHUB_ENV
+
+            # Accept slugs from workflow_dispatch (manual run with inputs)
+            - name: Inject slugs from workflow_dispatch
+              if: github.event_name == 'workflow_dispatch' && github.event.inputs.slugs != ''
+              run: |
+                  echo '${{ github.event.inputs.slugs }}' > .prerender_payload.json
+                  echo "PRERENDER_SLUGS=${{ github.event.inputs.slugs }}" >> $GITHUB_ENV
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
@@ -40,15 +50,14 @@ jobs:
                   node-version: "20"
                   cache: "npm"
 
+            # Safer install on Linux runners to avoid optional-deps (rollup) issues
             - name: Clean install (fix rollup optional deps on CI)
               run: |
-                  # Remove lockfile + node_modules and install fresh on runner to ensure platform-specific optional deps are resolved correctly
                   rm -rf node_modules package-lock.json
                   npm install
 
             - name: Prepare prerender file
               run: npm run prepare:prerender
-              # ensure PRERENDER_SLUGS is available to the script if set by dispatch
               env:
                   PRERENDER_SLUGS: ${{ env.PRERENDER_SLUGS || '' }}
 
@@ -83,9 +92,7 @@ jobs:
                   password: ${{ secrets.FTP_PASSWORD }}
                   protocol: ftps
                   local-dir: dist/ # must end with '/'
-                  # default is test folder so you don't overwrite production unintentionally
-                  server-dir: public_html/test-deploy/
-                  # Keep your admin dashboard / other assets intact
+                  server-dir: public_html/test-deploy/ # change to public_html/ when ready
                   exclude: |
                       admin/**
                       admin/**/*
