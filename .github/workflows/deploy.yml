@@ -93,7 +93,7 @@ jobs:
                   sudo apt-get update
                   sudo apt-get install -y lftp dnsutils
 
-                  # Prefer IPv4
+                  # Prefer IPv4 (avoid AAAA/IPv6 stalls)
                   HOST_IP="$(dig +short A "$FTP_SERVER" | head -n1 || true)"
                   if [ -z "$HOST_IP" ]; then
                     echo "No A record; using hostname $FTP_SERVER"
@@ -110,7 +110,6 @@ jobs:
                       set cmd:fail-exit true;
                       set ftp:passive-mode true;
                       set ftp:prefer-epsv false;
-                      set ssl:session-reuse off;
                       set ftp:ssl-force true;
                       set ftp:ssl-protect-data true;
                       set ssl:verify-certificate no;
@@ -128,7 +127,6 @@ jobs:
                       set cmd:fail-exit true;
                       set ftp:passive-mode true;
                       set ftp:prefer-epsv false;
-                      set ssl:session-reuse off;
                       set ftp:ssl-force true;
                       set ftp:ssl-protect-data true;
                       set ssl:verify-certificate no;   # remove if cert chain is valid
@@ -179,7 +177,7 @@ jobs:
                     exit 0
                   fi
 
-                  echo "::error::All connection attempts failed. If FTPS still fails, ask the host to confirm protocol (explicit 21 vs implicit 990) and ensure passive port range is open. Consider SFTP instead."
+                  echo "::error::All connection attempts failed. Likely the host is blocking GitHub runner IPs or requires SFTP. Ask the host to allow FTPS passive ports for your account, or switch to SFTP."
                   exit 1
 
             - name: Done
