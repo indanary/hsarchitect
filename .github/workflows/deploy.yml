@@ -1,10 +1,11 @@
-name: Build & Deploy Astro to cPanel
+# .github/workflows/deploy.yml  (in hsarchitect repo)
+name: Build & Publish Compiled Site
 
 on:
     workflow_dispatch:
         inputs:
             deploy:
-                description: "Deploy after build (true/false)"
+                description: "Push compiled dist to compiled-site branch"
                 required: false
                 default: "true"
             slugs:
@@ -19,39 +20,36 @@ concurrency:
     cancel-in-progress: true
 
 permissions:
-    contents: read
+    contents: write
 
 jobs:
-    build-deploy:
+    build-publish:
         runs-on: ubuntu-latest
         timeout-minutes: 20
 
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 1
+            - uses: actions/checkout@v4
+              with: {fetch-depth: 1}
 
-            - name: Prepare prerender payload (from repository_dispatch)
+            - name: Prepare prerender payload (repo_dispatch)
               if: github.event_name == 'repository_dispatch' && github.event.client_payload != ''
               run: |
-                  echo "Client payload: ${{ toJson(github.event.client_payload) }}"
-                  echo "${{ toJson(github.event.client_payload.slugs) }}" > .prerender_payload.json
+                  echo '${{ toJson(github.event.client_payload.slugs) }}' > .prerender_payload.json
                   echo "PRERENDER_SLUGS=${{ toJson(github.event.client_payload.slugs) }}" >> $GITHUB_ENV
 
-            - name: Inject slugs from workflow_dispatch
+            - name: Inject slugs (workflow_dispatch)
               if: github.event_name == 'workflow_dispatch' && github.event.inputs.slugs != ''
               run: |
                   echo '${{ github.event.inputs.slugs }}' > .prerender_payload.json
                   echo "PRERENDER_SLUGS=${{ github.event.inputs.slugs }}" >> $GITHUB_ENV
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
+            - uses: actions/setup-node@v4
               with:
                   node-version: "20"
                   cache: "npm"
 
-            - name: Clean install for Linux (rollup fix)
+            # Rollup optional native fix
+            - name: Clean install (Linux)
               run: |
                   rm -rf node_modules package-lock.json
                   npm install --no-audit --no-fund
@@ -73,112 +71,33 @@ jobs:
                   test -d dist && echo "dist folder exists."
                   [ "$(ls -A dist | wc -l)" -gt 0 ] || (echo "dist is empty" && exit 1)
 
-            - name: Deploy via lftp (robust FTPS with fallbacks)
+            - name: Publish dist/ to compiled-site
               if: >
-                  (github.ref_name == 'prod') && (github.event_name == 'repository_dispatch' ||
+                  github.ref_name == 'prod' && (github.event_name == 'repository_dispatch' ||
                    (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true'))
 
+
               env:
-                  FTP_SERVER: ${{ secrets.FTP_SERVER }} # e.g. ftp.hsarchitect.id
-                  FTP_USERNAME: ${{ secrets.FTP_USERNAME }} # e.g. hsadmin@hsarchitect.id
-                  FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   set -euo pipefail
+                  BRANCH="compiled-site"
+                  PUBLISH_DIR="dist"
 
-                  if [ -z "${FTP_SERVER:-}" ] || [ -z "${FTP_USERNAME:-}" ] || [ -z "${FTP_PASSWORD:-}" ]; then
-                    echo "::error::Missing one or more FTP secrets (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD)."
-                    exit 1
-                  fi
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
 
-                  sudo apt-get update
-                  sudo apt-get install -y lftp dnsutils
+                  git fetch origin $BRANCH || true
 
-                  # Prefer IPv4 (avoid AAAA/IPv6 stalls)
-                  HOST_IP="$(dig +short A "$FTP_SERVER" | head -n1 || true)"
-                  if [ -z "$HOST_IP" ]; then
-                    echo "No A record; using hostname $FTP_SERVER"
-                    HOST="$FTP_SERVER"
-                  else
-                    echo "Resolved $FTP_SERVER => $HOST_IP"
-                    HOST="$HOST_IP"
-                  fi
+                  rm -rf .publish && mkdir -p .publish
+                  cp -a "$PUBLISH_DIR/." .publish/
 
-                  lftp_ls() {
-                    local url="$1"
-                    echo "Testing list on: $url"
-                    lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
-                      set cmd:fail-exit true;
-                      set ftp:passive-mode true;
-                      set ftp:prefer-epsv false;
-                      set ftp:ssl-force true;
-                      set ftp:ssl-protect-data true;
-                      set ssl:verify-certificate no;
-                      set net:timeout 20;
-                      set net:max-retries 1;
-                      ls;
-                      quit
-                    " "$url"
-                  }
-
-                  lftp_upload() {
-                    local url="$1"
-                    echo "Uploading via: $url"
-                    lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
-                      set cmd:fail-exit true;
-                      set ftp:passive-mode true;
-                      set ftp:prefer-epsv false;
-                      set ftp:ssl-force true;
-                      set ftp:ssl-protect-data true;
-                      set ssl:verify-certificate no;   # remove if cert chain is valid
-                      set net:timeout 30;
-                      set net:max-retries 2;
-                      mirror -R --verbose dist/ public_html/;
-                      quit
-                    " "$url"
-                  }
-
-                  # 1) Explicit FTPS on 21
-                  if lftp_ls "ftps://$HOST:21"; then
-                    lftp_upload "ftps://$HOST:21"
-                    exit 0
-                  else
-                    echo "FTPS 21 failed to list. Trying implicit FTPS 990…"
-                  fi
-
-                  # 2) Implicit FTPS on 990
-                  if lftp_ls "ftps://$HOST:990"; then
-                    lftp_upload "ftps://$HOST:990"
-                    exit 0
-                  else
-                    echo "FTPS 990 failed to list. Trying plain FTP 21 (last resort)…"
-                  fi
-
-                  # 3) Plain FTP (last resort - insecure)
-                  echo "Testing list on: ftp://$HOST:21"
-                  if lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
-                        set cmd:fail-exit true;
-                        set ftp:passive-mode true;
-                        set ftp:prefer-epsv false;
-                        set net:timeout 20;
-                        set net:max-retries 1;
-                        ls;
-                        quit
-                      " "ftp://$HOST:21"; then
-                    echo "Uploading via: ftp://$HOST:21"
-                    lftp -u "$FTP_USERNAME","$FTP_PASSWORD" -e "
-                      set cmd:fail-exit true;
-                      set ftp:passive-mode true;
-                      set ftp:prefer-epsv false;
-                      set net:timeout 30;
-                      set net:max-retries 2;
-                      mirror -R --verbose dist/ public_html/;
-                      quit
-                    " "ftp://$HOST:21"
-                    exit 0
-                  fi
-
-                  echo "::error::All connection attempts failed. Likely the host is blocking GitHub runner IPs or requires SFTP. Ask the host to allow FTPS passive ports for your account, or switch to SFTP."
-                  exit 1
-
-            - name: Done
-              run: echo "✅ Production build (and deploy if enabled) finished"
+                  cd .publish
+                  git init
+                  git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+                  git checkout -b "$BRANCH"
+                  echo > .nojekyll
+                  echo "Compiled site branch. Do not edit." > README.md
+                  git add -A
+                  git commit -m "Publish compiled site from ${GITHUB_SHA} ($(date -u +'%Y-%m-%dT%H:%M:%SZ'))"
+                  git push -f origin "$BRANCH"
