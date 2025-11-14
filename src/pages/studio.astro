@@ -1,8 +1,14 @@
 ---
-import MainLayout from "../layouts/MainLayout.astro";
+import MainLayout from "../layouts/MainLayout.astro"
 import StudioContent from "../components/studio/StudioContent"
+
+const title = "Studio"
+const description =
+	"Studio profile, design philosophy, and achievements of hsarchitect — an architecture practice based in Semarang, Indonesia."
+const image = "/images/hsarchitect-logo-light.png"
+const pathname = Astro.url.pathname
 ---
 
-<MainLayout title="Studio">
-  <StudioContent client:load />
+<MainLayout {title} {description} {image} {pathname}>
+	<StudioContent client:load />
 </MainLayout>

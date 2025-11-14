@@ -72,6 +72,7 @@ export async function getStaticPaths() {
 
 const BASE = import.meta.env.PUBLIC_API_BASE_URL
 const {id} = Astro.params
+
 let initialProject = null
 try {
 	const r = await fetch(`${BASE}/projects/public/${encodeURIComponent(id)}`, {
@@ -81,8 +82,45 @@ try {
 } catch (err) {
 	// ignore; initialProject stays null
 }
+
+// Helpers for SEO-friendly meta values
+const safeText = (s) => (typeof s === "string" ? s.trim() : "")
+const truncate = (s, n = 155) =>
+	s && s.length > n ? `${s.slice(0, n - 1).trim()}…` : s
+
+// Title
+const title = initialProject?.title
+	? `${safeText(initialProject.title)} | hsarchitect.id`
+	: "Project Detail | hsarchitect.id"
+
+// Description: prefer explicit summary -> description -> fallback text
+const rawDesc =
+	safeText(initialProject?.summary) ||
+	safeText(initialProject?.description) ||
+	"Project detail page for hsarchitect — design, images, and project information."
+const description = truncate(rawDesc, 155)
+
+// Image: prefer project cover, otherwise site logo
+// Ensure path is absolute-ish (starts with /)
+const maybeImage = initialProject?.cover || "/images/hsarchitect-logo-light.png"
+const image = maybeImage.startsWith("http")
+	? maybeImage
+	: maybeImage.startsWith("/")
+		? maybeImage
+		: `/${maybeImage}`
+
+// Pathname for canonical: prefer Astro.url.pathname when available (runtime), otherwise construct
+const pathname =
+	Astro.url && Astro.url.pathname
+		? Astro.url.pathname
+		: `/projects/${encodeURIComponent(id)}`
 ---
 
-<MainLayout title={initialProject?.title ?? "Project Detail"}>
+<MainLayout
+	title={title}
+	description={description}
+	image={image}
+	pathname={pathname}
+>
 	<ProjectDetailContent id={id} initialProject={initialProject} client:load />
 </MainLayout>

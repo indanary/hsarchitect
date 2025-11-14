@@ -1,8 +1,14 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro"
 import HomeContent from "../components/home/HomeContent"
+
+const title = "Home"
+const description =
+	"hsarchitect — architecture studio based in Semarang, Indonesia."
+const image = "/images/hsarchitect-logo-light.png"
+const pathname = Astro.url.pathname
 ---
 
-<MainLayout title="Home">
-  <HomeContent client:load />
+<MainLayout {title} {description} {image} {pathname}>
+	<HomeContent client:load />
 </MainLayout>
