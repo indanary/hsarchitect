@@ -27,8 +27,30 @@ export default function ProfileSection() {
 
 		fetch(url, {signal: ctrl.signal, cache: "no-store"})
 			.then(async (r) => {
-				if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
-				return (await r.json()) as StudioEntry
+				if (!r.ok) {
+					// Try to get a helpful message from body
+					const ct = r.headers.get("content-type") || ""
+					const body = await r.text()
+					throw new Error(
+						`HTTP ${r.status} ${
+							r.statusText
+						} — content-type: ${ct} — body: ${body.slice(0, 500)}`,
+					)
+				}
+
+				const ct = r.headers.get("content-type") || ""
+				if (!ct.includes("application/json")) {
+					// Received HTML or something else — read it and throw
+					const text = await r.text()
+					throw new Error(
+						`Expected JSON but received: ${ct}; body: ${text.slice(
+							0,
+							500,
+						)}`,
+					)
+				}
+
+				return r.json() as Promise<StudioEntry>
 			})
 			.then((json) => {
 				if (!cancelled) setData(json)
