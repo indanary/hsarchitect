@@ -1,4 +1,80 @@
+import {useState, useMemo} from "react"
+
 export default function ContactForm() {
+	const [sending, setSending] = useState(false)
+
+	const endpoint = useMemo(() => {
+		const base = import.meta.env.PUBLIC_API_BASE_URL || ""
+		return base ? `${base.replace(/\/$/, "")}/contact` : `/contact`
+	}, [])
+
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault()
+		if (sending) return
+		setSending(true)
+
+		const formEl = e.currentTarget as HTMLFormElement
+
+		// collect values from inputs (keeps layout unchanged)
+		const name = (
+			formEl.querySelector<HTMLInputElement>('input[name="name"]')
+				?.value || ""
+		).trim()
+		const company = (
+			formEl.querySelector<HTMLInputElement>('input[name="company"]')
+				?.value || ""
+		).trim()
+		const subject = (
+			formEl.querySelector<HTMLInputElement>('input[name="subject"]')
+				?.value || ""
+		).trim()
+		const message = (
+			formEl.querySelector<HTMLTextAreaElement>(
+				'textarea[name="message"]',
+			)?.value || ""
+		).trim()
+
+		// basic client-side validation
+		if (!name || !message) {
+			alert("Please fill your name and message.")
+			setSending(false)
+			return
+		}
+
+		const payload = {name, company, subject, message}
+
+		try {
+			const res = await fetch(endpoint, {
+				method: "POST",
+				headers: {"Content-Type": "application/json"},
+				body: JSON.stringify(payload),
+			})
+
+			const json = await res.json().catch(async () => {
+				const text = await res.text()
+				return {
+					success: false,
+					error: `Invalid JSON response: ${text.slice(0, 300)}`,
+				}
+			})
+
+			if (res.ok && json.success) {
+				alert("Message sent — thank you!")
+				formEl.reset()
+			} else {
+				alert(
+					`Failed to send message: ${
+						json.error || `Server returned ${res.status}`
+					}`,
+				)
+			}
+		} catch (err: any) {
+			alert(`Network error: ${err?.message || "Unknown error"}`)
+		} finally {
+			setSending(false)
+		}
+	}
+
 	return (
 		<div className="mt-22 flex flex-col gap-10 px-10">
 			<div className="flex flex-col gap-4">
@@ -6,56 +82,71 @@ export default function ContactForm() {
 					Or Simply Send us an Email
 				</span>
 
-				<div className="w-full flex justify-between gap-16">
-					<div className="flex flex-col gap-5.5 w-2/6">
-						<input
-							type="text"
-							placeholder="Name"
-							className="w-full bg-transparent border-0 border-b border-white 
+				{/* Wrapped original layout in a form; no new inputs added, only name attributes for existing elements */}
+				<form
+					className="w-full"
+					onSubmit={handleSubmit}
+					method="post"
+					noValidate
+				>
+					<div className="w-full flex justify-between gap-16">
+						<div className="flex flex-col gap-5.5 w-2/6">
+							<input
+								name="name"
+								type="text"
+								placeholder="Name"
+								className="w-full bg-transparent border-0 border-b border-white 
               placeholder-white/80 placeholder:text-xs-loose 
                 focus:outline-none focus:border-white 
               text-white text-xs-loose"
-						/>
+								required
+							/>
 
-						<input
-							type="text"
-							placeholder="Company"
-							className="w-full bg-transparent border-0 border-b border-white 
+							<input
+								name="company"
+								type="text"
+								placeholder="Company"
+								className="w-full bg-transparent border-0 border-b border-white 
               placeholder-white/80 placeholder:text-xs-loose 
                 focus:outline-none focus:border-white 
               text-white text-xs-loose"
-						/>
+							/>
 
-						<input
-							type="text"
-							placeholder="Subject"
-							className="w-full bg-transparent border-0 border-b border-white 
+							<input
+								name="subject"
+								type="text"
+								placeholder="Subject"
+								className="w-full bg-transparent border-0 border-b border-white 
               placeholder-white/80 placeholder:text-xs-loose 
                 focus:outline-none focus:border-white 
               text-white text-xs-loose"
-						/>
-					</div>
+							/>
+						</div>
 
-					<div className="w-3/6">
-						<textarea
-							placeholder="Message"
-							className="w-full bg-transparent border-0 border-b border-white 
+						<div className="w-3/6">
+							<textarea
+								name="message"
+								placeholder="Message"
+								className="w-full bg-transparent border-0 border-b border-white 
               placeholder-white/80 placeholder:text-xs-loose 
                 focus:outline-none focus:border-white 
               text-white text-xs-loose resize-none"
-							rows={5}
-						/>
-					</div>
+								rows={5}
+								required
+							/>
+						</div>
 
-					<div className="w-1/6 flex flex-col justify-end">
-						<button
-							type="submit"
-							className="w-[100px] text-xs-loose cursor-pointer text-white hover:text-white/80 transition-colors duration-200"
-						>
-							Send
-						</button>
+						<div className="w-1/6 flex flex-col justify-end">
+							<button
+								type="submit"
+								disabled={sending}
+								className="w-[100px] text-xs-loose cursor-pointer text-white hover:text-white/80 transition-colors duration-200"
+							>
+								{sending ? "Sending…" : "Send"}
+							</button>
+						</div>
 					</div>
-				</div>
+				</form>
 
 				{/* maps */}
 				<div className="w-full h-[380px] overflow-hidden">
