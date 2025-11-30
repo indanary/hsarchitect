@@ -1,55 +1,18 @@
 // src/components/projects/list/SelectCategory.tsx
-import {useEffect, useMemo, useState} from "react"
+import {useState} from "react"
 
 interface Props {
+	categories: ProjectType[]
 	onSelect?: (typeId: string | null) => void // null = All
 }
 
 type ProjectType = {id: number | string; project_type: string}
 
-export default function SelectCategory({onSelect}: Readonly<Props>) {
-	const [categories, setCategories] = useState<ProjectType[]>([])
+export default function SelectCategory({
+	categories,
+	onSelect,
+}: Readonly<Props>) {
 	const [selectedId, setSelectedId] = useState<string>("all")
-	const [loading, setLoading] = useState(true)
-	const [error, setError] = useState<string | null>(null)
-
-	// Call your backend directly (static hosting friendly)
-	const url = useMemo(
-		() => `${import.meta.env.PUBLIC_API_BASE_URL}/project-types/public`,
-		[],
-	)
-
-	useEffect(() => {
-		let cancelled = false
-		const ctrl = new AbortController()
-
-		setLoading(true)
-		setError(null)
-
-		fetch(url, {signal: ctrl.signal, cache: "no-store"})
-			.then(async (r) => {
-				if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
-				return (await r.json()) as ProjectType[]
-			})
-			.then((data) => {
-				if (!cancelled) setCategories(data)
-			})
-			.catch((e) => {
-				if (!cancelled)
-					setError(e.message || "Failed to load categories")
-			})
-			.finally(() => {
-				if (!cancelled) setLoading(false)
-			})
-
-		return () => {
-			cancelled = true
-			ctrl.abort()
-		}
-	}, [url])
-
-	if (loading) return <span className="text-white">Loading categories…</span>
-	if (error) return <span className="text-red-400">Failed: {error}</span>
 
 	const allOption = {id: "all", project_type: "All"}
 	const options = [allOption, ...categories]

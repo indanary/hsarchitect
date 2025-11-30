@@ -7,8 +7,18 @@ const description =
 	"Explore hsarchitect architectural projects — residential, commercial, and conceptual works designed in Semarang and beyond."
 const image = "/images/hsarchitect-logo-light.png"
 const pathname = Astro.url.pathname
+
+// Fetch categories at build/server time
+const apiBase = import.meta.env.PUBLIC_API_BASE_URL
+const res = await fetch(`${apiBase}/project-types/public`)
+if (!res.ok) {
+	throw new Error(
+		`Failed to load project types: ${res.status} ${res.statusText}`,
+	)
+}
+const categories = await res.json()
 ---
 
 <MainLayout {title} {description} {image} {pathname}>
-	<ProjectListContent client:load />
+	<ProjectListContent client:load categories={categories} />
 </MainLayout>
