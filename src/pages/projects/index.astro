@@ -8,14 +8,20 @@ const description =
 const image = "/images/hsarchitect-logo-light.png"
 const pathname = Astro.url.pathname
 
-// Fetch categories at build/server time
+// 🔑 Build an absolute URL for the backend API
 const apiBase = import.meta.env.PUBLIC_API_BASE_URL
-const res = await fetch(`${apiBase}/project-types/public`)
+
+// new URL() guarantees a valid absolute URL
+const categoriesUrl = new URL("/project-types/public", apiBase).toString()
+
+const res = await fetch(categoriesUrl)
+
 if (!res.ok) {
 	throw new Error(
 		`Failed to load project types: ${res.status} ${res.statusText}`,
 	)
 }
+
 const categories = await res.json()
 ---
 
