@@ -8,21 +8,49 @@ const description =
 const image = "/images/hsarchitect-logo-light.png"
 const pathname = Astro.url.pathname
 
-// ✅ same pattern as [id].astro
 const BASE = import.meta.env.PUBLIC_API_BASE_URL
 
+if (!BASE) {
+	console.error(
+		"[projects/index.astro] PUBLIC_API_BASE_URL is not set at build time.",
+	)
+	throw new Error("PUBLIC_API_BASE_URL is required for Projects page build.")
+}
+
+console.log("[projects/index.astro] Using API base:", BASE)
+
 let categories = []
+
 try {
-	const r = await fetch(`${BASE}/project-types/public`, {
-		cache: "no-store",
-	})
-	if (r.ok) {
-		categories = await r.json()
-	} else {
-		console.warn("Failed to load project types:", r.status, r.statusText)
+	const url = `${BASE}/project-types/public`
+	console.log("[projects/index.astro] Fetching categories from:", url)
+
+	const r = await fetch(url, {cache: "no-store"})
+
+	console.log(
+		"[projects/index.astro] Categories response:",
+		r.status,
+		r.statusText,
+	)
+
+	// Fail hard if not OK so CI shows it clearly
+	if (!r.ok) {
+		const text = await r.text().catch(() => "")
+		console.error(
+			"[projects/index.astro] Non-OK response body:",
+			text.slice(0, 200),
+		)
+		throw new Error(
+			`Failed to load project types: ${r.status} ${r.statusText}`,
+		)
 	}
+
+	// Try parse JSON
+	const data = await r.json()
+
+	categories = data
 } catch (err) {
-	console.warn("Error fetching project types:", err)
+	throw err // let the build fail so you can see it
 }
 ---
 
