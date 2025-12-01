@@ -39,7 +39,6 @@ export async function getStaticPaths() {
 				if (Array.isArray(parsed)) return parsed.map(String)
 			}
 		} catch (e) {
-			// ignore and fallback
 			console.warn("Could not read prerender-slugs.json", e)
 		}
 		return []
@@ -48,6 +47,17 @@ export async function getStaticPaths() {
 	let ids = tryFromEnv()
 	if (ids.length === 0) ids = tryFromFile()
 
+	// 🔑 Clean & normalize ids: trim, drop empty, drop "__ALL__", dedupe
+	ids = Array.from(
+		new Set(
+			ids
+				.map(String)
+				.map((s) => s.trim())
+				.filter(Boolean)
+				.filter((s) => s !== "__ALL__"),
+		),
+	)
+
 	if (ids.length > 0) {
 		// Provided selective ids — generate only these pages
 		return ids.map((id) => ({params: {id: String(id)}}))
@@ -55,16 +65,20 @@ export async function getStaticPaths() {
 
 	// Fallback: fetch all publicly available projects (original behavior)
 	const BASE = import.meta.env.PUBLIC_API_BASE_URL
+	if (!BASE) {
+		console.warn(
+			"[projects/[id].astro] PUBLIC_API_BASE_URL is not set; returning no static paths.",
+		)
+		return []
+	}
+
 	try {
-		// use fetch without cache so we get the latest list at build-time
-		// (this may be an API call to your backend)
 		const r = await fetch(`${BASE}/projects/public`, {
 			cache: "no-store",
 		}).catch(() => null)
 		const projects = r?.ok ? await r.json() : []
 		return projects.map((p) => ({params: {id: String(p.id)}}))
 	} catch (err) {
-		// If even this fails, return an empty list so build doesn't crash unexpectedly
 		console.warn("Failed to fetch project list in getStaticPaths:", err)
 		return []
 	}
@@ -74,13 +88,16 @@ const BASE = import.meta.env.PUBLIC_API_BASE_URL
 const {id} = Astro.params
 
 let initialProject = null
-try {
-	const r = await fetch(`${BASE}/projects/public/${encodeURIComponent(id)}`, {
-		cache: "no-store",
-	})
-	if (r.ok) initialProject = await r.json()
-} catch (err) {
-	// ignore; initialProject stays null
+if (BASE) {
+	try {
+		const r = await fetch(
+			`${BASE}/projects/public/${encodeURIComponent(id)}`,
+			{cache: "no-store"},
+		)
+		if (r.ok) initialProject = await r.json()
+	} catch (err) {
+		// ignore; initialProject stays null
+	}
 }
 
 // Helpers for SEO-friendly meta values
@@ -101,7 +118,6 @@ const rawDesc =
 const description = truncate(rawDesc, 155)
 
 // Image: prefer project cover, otherwise site logo
-// Ensure path is absolute-ish (starts with /)
 const maybeImage = initialProject?.cover || "/images/hsarchitect-logo-light.png"
 const image = maybeImage.startsWith("http")
 	? maybeImage
@@ -109,7 +125,7 @@ const image = maybeImage.startsWith("http")
 		? maybeImage
 		: `/${maybeImage}`
 
-// Pathname for canonical: prefer Astro.url.pathname when available (runtime), otherwise construct
+// Pathname for canonical
 const pathname =
 	Astro.url && Astro.url.pathname
 		? Astro.url.pathname
