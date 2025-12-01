@@ -35,9 +35,33 @@ function parseFromFile() {
 
 const envSlugs = parseFromEnv()
 const fileSlugs = parseFromFile()
-const slugs = envSlugs.length ? envSlugs : fileSlugs
+
+// Prefer env slugs if present, else file slugs
+const rawSlugs = envSlugs.length ? envSlugs : fileSlugs
+
+// 🧹 Clean up slugs:
+// - normalize to string & trim
+// - drop empty
+// - drop special "__ALL__" marker
+// - dedupe
+const cleanedSlugs = Array.from(
+	new Set(
+		rawSlugs
+			.map(String)
+			.map((s) => s.trim())
+			.filter(Boolean)
+			.filter((s) => s !== "__ALL__"),
+	),
+)
+
+if (rawSlugs.includes("__ALL__")) {
+	console.log(
+		'prepare-prerender: "__ALL__" marker detected, ignoring it for prerender-slugs.json',
+	)
+}
 
 // write result
-fs.writeFileSync(OUT, JSON.stringify(slugs, null, 2))
-console.log(`Wrote ${OUT} with ${slugs.length} slug(s)`)
+fs.writeFileSync(OUT, JSON.stringify(cleanedSlugs, null, 2))
+console.log(`Wrote ${OUT} with ${cleanedSlugs.length} slug(s)`)
+
 process.exit(0)
