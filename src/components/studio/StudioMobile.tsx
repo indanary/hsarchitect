@@ -1,23 +1,45 @@
+// src/components/studio/StudioMobile.tsx
 import {useState} from "react"
+import type {StudioEntry} from "./StudioContent"
 
 import ProfileSectionMobile from "./ProfileSectionMobile"
 import PhilosophySectionMobile from "./PhilosophySectionMobile"
 import AchievementSectionMobile from "./AchievementSectionMobile"
 
-const StudioMobile = () => {
-	const [sections, setSections] = useState<
-		("Profile" | "Philosophy" | "Achievement")[]
-	>(["Profile", "Philosophy", "Achievement"])
-	const [selectedSection, setSelectedSection] = useState("Profile")
+interface Props {
+	initialProfile?: StudioEntry | null
+	initialPhilosophy?: StudioEntry | null
+	initialAchievement?: StudioEntry | null
+}
+
+const StudioMobile = ({
+	initialProfile,
+	initialPhilosophy,
+	initialAchievement,
+}: Readonly<Props>) => {
+	const [sections] = useState<("Profile" | "Philosophy" | "Achievement")[]>([
+		"Profile",
+		"Philosophy",
+		"Achievement",
+	])
+	const [selectedSection, setSelectedSection] = useState<
+		"Profile" | "Philosophy" | "Achievement"
+	>("Profile")
 
 	const renderSection = () => {
 		switch (selectedSection) {
 			case "Profile":
-				return <ProfileSectionMobile />
+				return <ProfileSectionMobile initialData={initialProfile} />
 			case "Philosophy":
-				return <PhilosophySectionMobile />
+				return (
+					<PhilosophySectionMobile initialData={initialPhilosophy} />
+				)
 			case "Achievement":
-				return <AchievementSectionMobile />
+				return (
+					<AchievementSectionMobile
+						initialData={initialAchievement}
+					/>
+				)
 			default:
 				return null
 		}

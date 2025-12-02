@@ -1,74 +1,16 @@
 // src/components/studio/AchievementSection.tsx
-import {useEffect, useMemo, useState} from "react"
+import StudioSection from "./StudioSection"
+import type {StudioEntry} from "./StudioContent"
 
-type StudioEntry = {
-	id: number | string
-	type: "profile" | "philosophy" | "achievement"
-	description: string
+interface Props {
+	initialData?: StudioEntry | null
 }
 
-export default function AchievementSection() {
-	const [data, setData] = useState<StudioEntry | null>(null)
-	const [loading, setLoading] = useState(true)
-	const [error, setError] = useState<string | null>(null)
-
-	// Call your backend directly (no Astro /api/* route)
-	const url = useMemo(
-		() => `${import.meta.env.PUBLIC_API_BASE_URL}/studio/achievement`,
-		[],
-	)
-
-	useEffect(() => {
-		let cancelled = false
-		const ctrl = new AbortController()
-
-		setLoading(true)
-		setError(null)
-
-		fetch(url, {signal: ctrl.signal, cache: "no-store"})
-			.then(async (r) => {
-				if (!r.ok) throw new Error(`${r.status} ${r.statusText}`)
-				return (await r.json()) as StudioEntry
-			})
-			.then((json) => {
-				if (!cancelled) setData(json)
-			})
-			.catch((e) => {
-				if (!cancelled) setError(e.message || "Failed to load")
-			})
-			.finally(() => {
-				if (!cancelled) setLoading(false)
-			})
-
-		return () => {
-			cancelled = true
-			ctrl.abort()
-		}
-	}, [url])
-
-	if (loading) {
-		return (
-			<div className="h-[400px] w-[652px] mt-19 text-white/80">
-				Loading…
-			</div>
-		)
-	}
-
-	if (error) {
-		return (
-			<div className="h-[400px] w-[652px] mt-19 text-red-400">
-				Failed: {error}
-			</div>
-		)
-	}
-
+export default function AchievementSection({initialData}: Readonly<Props>) {
 	return (
-		<div className="h-[400px] w-[652px] mt-19">
-			<div
-				className="text-xs-loose text-white"
-				// Ensure your backend returns trusted/sanitized HTML.
-				dangerouslySetInnerHTML={{__html: data?.description ?? ""}}
-			/>
-		</div>
+		<StudioSection
+			endpoint="/studio/achievement"
+			initialData={initialData}
+		/>
 	)
 }

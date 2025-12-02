@@ -7,8 +7,36 @@ const description =
 	"Studio profile, design philosophy, and achievements of hsarchitect — an architecture practice based in Semarang, Indonesia."
 const image = "/images/hsarchitect-logo-light.png"
 const pathname = Astro.url.pathname
+
+const BASE = import.meta.env.PUBLIC_API_BASE_URL
+
+if (!BASE) {
+	throw new Error("PUBLIC_API_BASE_URL is required for Studio page build.")
+}
+
+async function fetchStudio(path: string) {
+	try {
+		const url = `${BASE}${path}`
+		const r = await fetch(url, {cache: "no-store"})
+		if (!r.ok) {
+			return null
+		}
+		return await r.json()
+	} catch (err) {
+		return null
+	}
+}
+
+const profile = await fetchStudio("/studio/profile")
+const philosophy = await fetchStudio("/studio/philosophy")
+const achievement = await fetchStudio("/studio/achievement")
 ---
 
 <MainLayout {title} {description} {image} {pathname}>
-	<StudioContent client:load />
+	<StudioContent
+		client:load
+		initialProfile={profile}
+		initialPhilosophy={philosophy}
+		initialAchievement={achievement}
+	/>
 </MainLayout>

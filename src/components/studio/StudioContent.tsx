@@ -1,16 +1,30 @@
+// src/components/studio/StudioContent.tsx
 import {useState} from "react"
-
 import {useIsMobile} from "../../utils/useIsMobile"
-
 import LayoutWrapper from "../../layouts/LayoutWrapper"
 import SelectSection from "./SelectSection"
 import ProfileSection from "./ProfileSection"
 import PhilosophySection from "./PhilosophySection"
 import AchievementSection from "./AchievementSection"
-
 import StudioMobile from "./StudioMobile"
 
-export default function StudioContent() {
+export type StudioEntry = {
+	id: number | string
+	type: "profile" | "philosophy" | "achievement"
+	description: string
+}
+
+interface Props {
+	initialProfile?: StudioEntry | null
+	initialPhilosophy?: StudioEntry | null
+	initialAchievement?: StudioEntry | null
+}
+
+export default function StudioContent({
+	initialProfile,
+	initialPhilosophy,
+	initialAchievement,
+}: Readonly<Props>) {
 	const isMobile = useIsMobile()
 
 	const [section, setSection] = useState<
@@ -20,11 +34,11 @@ export default function StudioContent() {
 	const renderSection = () => {
 		switch (section) {
 			case "Profile":
-				return <ProfileSection />
+				return <ProfileSection initialData={initialProfile} />
 			case "Philosophy":
-				return <PhilosophySection />
+				return <PhilosophySection initialData={initialPhilosophy} />
 			case "Achievement":
-				return <AchievementSection />
+				return <AchievementSection initialData={initialAchievement} />
 			default:
 				return null
 		}
@@ -37,7 +51,6 @@ export default function StudioContent() {
 					showSearch
 					sidebar={
 						<div className="flex gap-10 text-white">
-							{/* Spacer div */}
 							<div className="w-[72px] h-[48px]" />
 							<SelectSection onSelect={setSection} />
 						</div>
@@ -45,7 +58,16 @@ export default function StudioContent() {
 					content={renderSection()}
 				/>
 			) : (
-				<LayoutWrapper showSearch sidebar={<StudioMobile />} />
+				<LayoutWrapper
+					showSearch
+					sidebar={
+						<StudioMobile
+							initialProfile={initialProfile}
+							initialPhilosophy={initialPhilosophy}
+							initialAchievement={initialAchievement}
+						/>
+					}
+				/>
 			)}
 		</>
 	)
