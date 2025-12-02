@@ -18,8 +18,23 @@ type Project = {
 	location: string
 }
 
-export default function SearchResult() {
-	const [projects, setProjects] = useState<Project[]>([])
+interface Props {
+	initialProjects?: ApiProject[]
+}
+
+export default function SearchResult({initialProjects}: Readonly<Props>) {
+	const [projects, setProjects] = useState<Project[]>(() =>
+		(initialProjects ?? []).map((p) => ({
+			id: p.id,
+			title: p.title,
+			location: p.location ?? "",
+			imageUrl:
+				p.cover_url ??
+				p.cover_file_path ??
+				"/images/project-example.png",
+			thumbUrl: p.cover_thumb_url ?? null,
+		})),
+	)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
@@ -32,16 +47,42 @@ export default function SearchResult() {
 		return () => clearTimeout(t)
 	}, [search])
 
-	// ✅ Build backend URL directly (static-hosting friendly)
+	const base = import.meta.env.PUBLIC_API_BASE_URL
+
+	// Build backend URL directly (static-hosting friendly)
 	const url = useMemo(() => {
+		if (!base) return null
 		const sp = new URLSearchParams()
 		if (debouncedSearch) sp.set("q", debouncedSearch)
 		const qs = sp.toString()
-		const base = import.meta.env.PUBLIC_API_BASE_URL
 		return `${base}/projects/public${qs ? `?${qs}` : ""}`
-	}, [debouncedSearch])
+	}, [debouncedSearch, base])
 
 	useEffect(() => {
+		// If there's no search query and we already have initial projects from SSR,
+		// just show those and skip client fetch.
+		if (!debouncedSearch && initialProjects && initialProjects.length > 0) {
+			setProjects(
+				initialProjects.map((p) => ({
+					id: p.id,
+					title: p.title,
+					location: p.location ?? "",
+					imageUrl:
+						p.cover_url ??
+						p.cover_file_path ??
+						"/images/project-example.png",
+					thumbUrl: p.cover_thumb_url ?? null,
+				})),
+			)
+			setLoading(false)
+			setError(null)
+			return
+		}
+
+		if (!url) {
+			return
+		}
+
 		let cancelled = false
 		const ctrl = new AbortController()
 
@@ -78,7 +119,7 @@ export default function SearchResult() {
 			cancelled = true
 			ctrl.abort()
 		}
-	}, [url])
+	}, [url, debouncedSearch, initialProjects])
 
 	// --- render states without ternary ---
 	let content: React.ReactNode

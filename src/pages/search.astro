@@ -5,10 +5,28 @@ import SearchContent from "../components/search/SearchContent"
 const title = "Search"
 const description =
 	"Search hsarchitect architectural projects by name, category, or keyword."
-const image = "/images/hsarchitect-logo-light.png" // your OG image
+const image = "/images/hsarchitect-logo-light.png"
 const pathname = Astro.url.pathname
+
+const BASE = import.meta.env.PUBLIC_API_BASE_URL
+
+if (!BASE) {
+	throw new Error("PUBLIC_API_BASE_URL is required for Search page build.")
+}
+
+let initialProjects = []
+
+try {
+	const url = `${BASE}/projects/public`
+
+	const r = await fetch(url, {cache: "no-store"})
+
+	if (r.ok) {
+		initialProjects = await r.json()
+	}
+} catch (err) {}
 ---
 
 <MainLayout {title} {description} {image} {pathname}>
-	<SearchContent client:load />
+	<SearchContent client:load initialProjects={initialProjects} />
 </MainLayout>
