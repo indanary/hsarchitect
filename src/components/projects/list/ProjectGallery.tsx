@@ -13,6 +13,7 @@ type ApiProject = {
 
 interface Props {
 	projectTypeId: string | null // null = All
+	initialProjects?: ApiProject[]
 }
 
 type UiProject = {
@@ -34,21 +35,42 @@ function mapToUI(p: ApiProject): UiProject {
 	}
 }
 
-export default function ProjectGallery({projectTypeId}: Readonly<Props>) {
-	const [projects, setProjects] = useState<UiProject[]>([])
+export default function ProjectGallery({
+	projectTypeId,
+	initialProjects,
+}: Readonly<Props>) {
+	const [projects, setProjects] = useState<UiProject[]>(() =>
+		initialProjects && initialProjects.length > 0 && projectTypeId === null
+			? initialProjects.map(mapToUI)
+			: [],
+	)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
-	// ✅ call backend directly (static-hosting friendly)
+	const base = import.meta.env.PUBLIC_API_BASE_URL
+
+	// Build URL for client-side fetch
 	const url = useMemo(() => {
+		if (!base) return null
 		const sp = new URLSearchParams()
 		if (projectTypeId) sp.set("project_type_id", projectTypeId)
 		const qs = sp.toString()
-		const base = import.meta.env.PUBLIC_API_BASE_URL
 		return `${base}/projects/public${qs ? `?${qs}` : ""}`
-	}, [projectTypeId])
+	}, [projectTypeId, base])
 
 	useEffect(() => {
+		// If we're on "All" and we already have initial projects, use them and skip fetch
+		if (
+			projectTypeId === null &&
+			initialProjects &&
+			initialProjects.length > 0
+		) {
+			setProjects(initialProjects.map(mapToUI))
+			setLoading(false)
+			setError(null)
+			return
+		}
+
 		let cancelled = false
 		const ctrl = new AbortController()
 
@@ -72,7 +94,7 @@ export default function ProjectGallery({projectTypeId}: Readonly<Props>) {
 			cancelled = true
 			ctrl.abort()
 		}
-	}, [url])
+	}, [url, projectTypeId, initialProjects])
 
 	if (loading) return <p className="text-white">Loading projects...</p>
 	if (error) return <p className="text-red-400">Failed to load: {error}</p>

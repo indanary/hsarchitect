@@ -6,12 +6,24 @@ import ProjectGallery from "./ProjectGallery"
 
 type ProjectType = {id: number | string; project_type: string}
 
+type ApiProject = {
+	id: number | string
+	title: string
+	location?: string
+	cover_url?: string | null
+	cover_thumb_url?: string | null
+	cover_file_path?: string | null
+	cover_alt?: string | null
+}
+
 interface Props {
 	categories: ProjectType[]
+	initialProjects: ApiProject[]
 }
 
 export default function ProjectListContent({
 	categories: initialCategories,
+	initialProjects,
 }: Readonly<Props>) {
 	const [typeId, setTypeId] = useState<string | null>(null) // null = All
 	const [categories, setCategories] = useState<ProjectType[]>(
@@ -23,12 +35,6 @@ export default function ProjectListContent({
 		if (initialCategories && initialCategories.length > 0) return
 
 		const base = import.meta.env.PUBLIC_API_BASE_URL
-		if (!base) {
-			console.warn(
-				"[ProjectListContent] PUBLIC_API_BASE_URL is not set on client.",
-			)
-			return
-		}
 
 		let cancelled = false
 		const ctrl = new AbortController()
@@ -40,26 +46,12 @@ export default function ProjectListContent({
 					cache: "no-store",
 					signal: ctrl.signal,
 				})
-				if (!r.ok) {
-					console.warn(
-						"[ProjectListContent] client fetch categories failed:",
-						r.status,
-						r.statusText,
-					)
-					return
-				}
+
 				const data = (await r.json()) as ProjectType[]
 				if (!cancelled) {
 					setCategories(data)
 				}
-			} catch (err) {
-				if (!cancelled) {
-					console.warn(
-						"[ProjectListContent] client fetch categories error:",
-						err,
-					)
-				}
-			}
+			} catch (err) {}
 		})()
 
 		return () => {
@@ -81,7 +73,12 @@ export default function ProjectListContent({
 					/>
 				</div>
 			}
-			content={<ProjectGallery projectTypeId={typeId} />}
+			content={
+				<ProjectGallery
+					projectTypeId={typeId}
+					initialProjects={initialProjects}
+				/>
+			}
 		/>
 	)
 }
