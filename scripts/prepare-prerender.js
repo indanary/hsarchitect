@@ -54,14 +54,7 @@ const cleanedSlugs = Array.from(
 	),
 )
 
-if (rawSlugs.includes("__ALL__")) {
-	console.log(
-		'prepare-prerender: "__ALL__" marker detected, ignoring it for prerender-slugs.json',
-	)
-}
-
 // write result
 fs.writeFileSync(OUT, JSON.stringify(cleanedSlugs, null, 2))
-console.log(`Wrote ${OUT} with ${cleanedSlugs.length} slug(s)`)
 
 process.exit(0)
