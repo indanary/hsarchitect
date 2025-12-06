@@ -144,7 +144,7 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 	} else {
 		content = (
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-				{projects.map((project) => (
+				{projects.map((project, index) => (
 					<a
 						key={`${project.id}`}
 						href={`/projects/${project.id}`}
@@ -159,7 +159,8 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 							}
 							sizes="(max-width: 640px) 100vw, 33vw"
 							alt={project.title}
-							loading="lazy"
+							loading={index === 0 ? "eager" : "lazy"}
+							{...(index === 0 ? {fetchPriority: "high"} : {})}
 							className="w-full h-[256px] object-cover transition duration-300 group-hover:brightness-75"
 						/>
 
