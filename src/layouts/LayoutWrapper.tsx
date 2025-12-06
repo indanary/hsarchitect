@@ -47,7 +47,7 @@ export default function LayoutWrapper({
 							alt="HS Architect Logo"
 							height="auto"
 							className="w-[132px] sm:w-[144px] h-auto object-contain"
-							loading="lazy"
+							loading="eager"
 							decoding="async"
 						/>
 					</a>

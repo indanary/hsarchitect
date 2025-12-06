@@ -1,4 +1,5 @@
 ---
+// index.astro
 import MainLayout from "../layouts/MainLayout.astro"
 import HomeContent from "../components/home/HomeContent"
 
@@ -10,5 +11,5 @@ const pathname = Astro.url.pathname
 ---
 
 <MainLayout {title} {description} {image} {pathname}>
-	<HomeContent client:load />
+	<HomeContent client:idle />
 </MainLayout>
