@@ -59,6 +59,8 @@ export default function ProjectGallery({
 	}, [projectTypeId, base])
 
 	useEffect(() => {
+		if (!url) return
+
 		// If we're on "All" and we already have initial projects, use them and skip fetch
 		if (
 			projectTypeId === null &&
@@ -102,9 +104,9 @@ export default function ProjectGallery({
 		return <p className="text-white">No projects found.</p>
 
 	return (
-		<div className="overflow-y-auto max-h-[620px] app-scroll">
+		<div className="app-scroll">
 			<div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4">
-				{projects.map((project) => (
+				{projects.map((project, index) => (
 					<a
 						key={`${project.id}`}
 						href={`/projects/${project.id}`}
@@ -119,7 +121,8 @@ export default function ProjectGallery({
 							}
 							sizes="(max-width: 640px) 100vw, 33vw"
 							alt={project.title}
-							loading="lazy"
+							loading={index === 0 ? "eager" : "lazy"}
+							{...(index === 0 ? {fetchPriority: "high"} : {})}
 							className="w-full h-[256px] object-cover transition duration-300 group-hover:brightness-75"
 						/>
 
