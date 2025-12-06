@@ -49,6 +49,7 @@ export default function LayoutWrapper({
 							className="w-[132px] sm:w-[144px] h-auto object-contain"
 							loading="eager"
 							decoding="async"
+							fetchPriority="high"
 						/>
 					</a>
 
