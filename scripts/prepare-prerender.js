@@ -6,7 +6,7 @@ const ROOT = process.cwd()
 const OUT = path.resolve(ROOT, "prerender-slugs.json")
 const PAYLOAD_FILE = path.resolve(ROOT, ".prerender_payload.json")
 
-// Small helper: safe JSON parse
+// ---- helpers ----
 function safeJsonParse(str, fallback) {
 	try {
 		return JSON.parse(str)
@@ -29,7 +29,7 @@ function parseFromEnv() {
 		return parsed.map((v) => String(v))
 	}
 
-	// Fallback: treat as comma-separated values
+	// Fallback: CSV
 	return trimmed
 		.split(",")
 		.map((s) => s.trim())
@@ -52,35 +52,69 @@ function parseFromFile() {
 	return []
 }
 
-const envSlugs = parseFromEnv()
-const fileSlugs = envSlugs.length ? [] : parseFromFile()
+// Main logic in an async IIFE so we can `await fetch`
+;(async () => {
+	const envSlugs = parseFromEnv()
+	const fileSlugs = envSlugs.length ? [] : parseFromFile()
 
-// Prefer env slugs if present, else file slugs
-const rawSlugs = envSlugs.length ? envSlugs : fileSlugs
+	// Prefer env slugs if present, else file slugs
+	const rawSlugs = envSlugs.length ? envSlugs : fileSlugs
 
-// 🧹 Clean up slugs:
-// - normalize to string & trim
-// - drop empty
-// - drop special "__ALL__" marker
-// - dedupe
-const cleanedSlugs = Array.from(
-	new Set(
-		rawSlugs
-			.map(String)
-			.map((s) => s.trim())
-			.filter(Boolean)
-			.filter((s) => s !== "__ALL__"),
-	),
-)
+	// Clean up slugs
+	let cleanedSlugs = Array.from(
+		new Set(
+			rawSlugs
+				.map(String)
+				.map((s) => s.trim())
+				.filter(Boolean)
+				.filter((s) => s !== "__ALL__"),
+		),
+	)
 
-// Write result used by Astro's getStaticPaths (or similar)
-fs.writeFileSync(OUT, JSON.stringify(cleanedSlugs, null, 2))
+	// If still empty, fall back to "all projects from API"
+	if (cleanedSlugs.length === 0) {
+		const base = process.env.PUBLIC_API_BASE_URL
+		if (!base) {
+			console.warn(
+				"[prepare:prerender] No PRERENDER_SLUGS and no PUBLIC_API_BASE_URL; keeping []",
+			)
+		} else {
+			try {
+				const url = `${base.replace(/\/+$/, "")}/projects/public`
+				console.log(
+					"[prepare:prerender] Fetching all project IDs from",
+					url,
+				)
 
-// Optional: remove payload file after using it, so old slugs can't leak
-if (fs.existsSync(PAYLOAD_FILE)) {
-	fs.unlinkSync(PAYLOAD_FILE)
-}
+				const res = await fetch(url)
+				if (!res.ok) {
+					throw new Error(`${res.status} ${res.statusText}`)
+				}
 
-console.log("[prepare:prerender] slugs:", cleanedSlugs)
+				const data = await res.json()
+				if (Array.isArray(data)) {
+					cleanedSlugs = data
+						.map((p) => (p && p.id != null ? String(p.id) : null))
+						.filter(Boolean)
+				}
+			} catch (err) {
+				console.error(
+					"[prepare:prerender] Failed to fetch all projects:",
+					err?.message || err,
+				)
+			}
+		}
+	}
 
-process.exit(0)
+	// Write final slugs file
+	fs.writeFileSync(OUT, JSON.stringify(cleanedSlugs, null, 2))
+
+	// Remove payload file so old slugs don't leak
+	if (fs.existsSync(PAYLOAD_FILE)) {
+		fs.unlinkSync(PAYLOAD_FILE)
+	}
+
+	console.log("[prepare:prerender] final slugs:", cleanedSlugs)
+
+	process.exit(0)
+})()
