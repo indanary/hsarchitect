@@ -15,6 +15,7 @@ type ApiProject = {
 	description?: string | null // HTML
 	location?: string | null
 	project_type_id?: number | string | null
+	project_type?: string | null
 	scope?: string | null
 	year?: number | string | null
 	status?: string | null
@@ -43,6 +44,7 @@ export default function DetailInformation(props: {
 	const year = project?.year ?? "-"
 	const status = project?.status ?? "-"
 	const area = project?.area ?? "-"
+	const project_type = project?.project_type ?? "-"
 
 	if (loading) {
 		return (
@@ -97,7 +99,7 @@ export default function DetailInformation(props: {
 
 					<div className="flex flex-col text-xs-loose text-[#071E50]">
 						<span className="font-bold">Category</span>
-						<span>{String(category)}</span>
+						<span>{String(project_type)}</span>
 					</div>
 
 					<div className="flex flex-col text-xs-loose text-[#071E50]">
