@@ -105,7 +105,9 @@ export default function StudioSection({
 		<div className={className ?? "h-[400px] w-[652px] mt-19"}>
 			<div
 				className="text-xs-loose text-white"
-				dangerouslySetInnerHTML={{__html: data?.description ?? ""}}
+				dangerouslySetInnerHTML={{
+					__html: data?.data?.description ?? "",
+				}}
 			/>
 		</div>
 	)

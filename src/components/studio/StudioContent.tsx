@@ -9,9 +9,11 @@ import AchievementSection from "./AchievementSection"
 import StudioMobile from "./StudioMobile"
 
 export type StudioEntry = {
-	id: number | string
-	type: "profile" | "philosophy" | "achievement"
-	description: string
+	data: {
+		id: number | string
+		type: "profile" | "philosophy" | "achievement"
+		description: string
+	}
 }
 
 interface Props {
