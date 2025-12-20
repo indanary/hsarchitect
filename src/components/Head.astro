@@ -12,7 +12,11 @@ const {
 } = Astro.props;
 
 // build canonical URL (avoid trailing double slashes)
-const canonical = `${siteUrl.replace(/\/$/, "")}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
+const canonical =
+  pathname === "/"
+    ? `${siteUrl.replace(/\/$/, "")}/`
+    : `${siteUrl.replace(/\/$/, "")}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
+
 ---
 
 <head>
@@ -78,7 +82,7 @@ const canonical = `${siteUrl.replace(/\/$/, "")}${pathname.startsWith("/") ? pat
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "hsarchitect.id",
-    "url": "https://hsarchitect.id",
+    "url": "https://hsarchitect.id/",
     "logo": "https://hsarchitect.id/images/hsarchitect-logo.png"
   })}
   </script>
@@ -91,12 +95,12 @@ const canonical = `${siteUrl.replace(/\/$/, "")}${pathname.startsWith("/") ? pat
         {
           "@type": "Organization",
           "name": siteName,
-          "url": siteUrl,
+          "url": "https://hsarchitect.id/",
         },
         {
           "@type": "WebSite",
           "name": siteName,
-          "url": siteUrl,
+          "url": "https://hsarchitect.id/",
           "potentialAction": {
             "@type": "SearchAction",
             "target": `${siteUrl}/search?q={search_term_string}`,
