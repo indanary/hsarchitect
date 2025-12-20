@@ -52,7 +52,7 @@ export default function StudioContent({
 				<LayoutWrapper
 					showSearch
 					sidebar={
-						<div className="flex gap-10 text-white">
+						<div className="flex gap-7 xl:gap-10 text-white">
 							<div className="w-[72px] h-[48px]" />
 							<SelectSection onSelect={setSection} />
 						</div>

@@ -126,7 +126,7 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 
 	if (loading) {
 		content = (
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
 				{Array.from({length: 9}).map((_, idx) => (
 					<div
 						key={idx}
@@ -143,7 +143,7 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 		)
 	} else {
 		content = (
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
 				{projects.map((project, index) => (
 					<a
 						key={`${project.id}`}

@@ -8,6 +8,19 @@ interface LayoutWrapperProps {
 	showSearch?: boolean
 }
 
+function useIsXL() {
+	const [isXL, setIsXL] = useState(false)
+
+	useEffect(() => {
+		const check = () => setIsXL(window.innerWidth >= 1280)
+		check()
+		window.addEventListener("resize", check)
+		return () => window.removeEventListener("resize", check)
+	}, [])
+
+	return isXL
+}
+
 export default function LayoutWrapper({
 	sidebar,
 	sidebarClass = "",
@@ -17,6 +30,8 @@ export default function LayoutWrapper({
 }: Readonly<LayoutWrapperProps>) {
 	const [path, setPath] = useState("/")
 	const [isOpen, setIsOpen] = useState(false)
+
+	const isXL = useIsXL()
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
@@ -35,7 +50,7 @@ export default function LayoutWrapper({
 				isOpen ? "fixed" : "relative"
 			}`}
 		>
-			<aside className="flex flex-col h-full w-full sm:w-[24rem]">
+			<aside className="flex flex-col h-full min-h-0 w-full sm:w-[24rem]">
 				<div className="w-full flex justify-between items-center">
 					<a href="/">
 						<img
@@ -112,11 +127,24 @@ export default function LayoutWrapper({
 					</nav>
 				</div>
 
-				<div
-					className={`flex-1 overflow-auto py-10 lg:py-4 xl:py-10 app-scroll ${sidebarClass}`}
-				>
-					{sidebar}
-				</div>
+				{isXL ? (
+					<div
+						className={`flex-1 overflow-auto pr-5 py-10 lg:py-4 xl:py-10 app-scroll ${sidebarClass}`}
+					>
+						{sidebar}
+					</div>
+				) : (
+					<div
+						className="overflow-auto pr-5 app-scroll"
+						style={{
+							height: "calc(100% - 50px)",
+							marginTop: "25px",
+							marginBottom: "25px",
+						}}
+					>
+						{sidebar}
+					</div>
+				)}
 
 				<nav
 					className={`sm:flex items-center gap-16 hidden pt-2 ${

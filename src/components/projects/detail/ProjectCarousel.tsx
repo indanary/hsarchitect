@@ -62,7 +62,7 @@ export default function ProjectCarousel({
 								sizes="(max-width: 1024px) 90vw, 840px"
 								alt={img.alt ?? `Image ${index + 1}`}
 								loading="lazy"
-								className="w-full h-full object-cover"
+								className="max-h-full w-auto max-w-full object-contain"
 							/>
 						</div>
 					))}

@@ -105,7 +105,7 @@ export default function ProjectGallery({
 
 	return (
 		<div className="app-scroll">
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-4">
 				{projects.map((project, index) => (
 					<a
 						key={`${project.id}`}

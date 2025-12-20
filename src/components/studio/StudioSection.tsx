@@ -81,7 +81,8 @@ export default function StudioSection({
 		return (
 			<div
 				className={
-					className ?? "h-[400px] w-[652px] mt-19 text-white/80"
+					className ??
+					"h-[400px] w-[652px] mt-13 xl:mt-19 text-white/80"
 				}
 			>
 				Loading…
@@ -93,7 +94,8 @@ export default function StudioSection({
 		return (
 			<div
 				className={
-					className ?? "h-[400px] w-[652px] mt-19 text-red-400"
+					className ??
+					"h-[400px] w-[652px] mt-13 xl:mt-19 text-red-400"
 				}
 			>
 				Failed: {error}
@@ -102,7 +104,7 @@ export default function StudioSection({
 	}
 
 	return (
-		<div className={className ?? "h-[400px] w-[652px] mt-19"}>
+		<div className={className ?? "h-[400px] w-[652px] mt-13 xl:mt-19"}>
 			<div
 				className="text-xs-loose text-white"
 				dangerouslySetInnerHTML={{
