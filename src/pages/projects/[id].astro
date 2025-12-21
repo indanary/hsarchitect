@@ -94,6 +94,10 @@ if (BASE) {
 	}
 }
 
+if (!initialProject) {
+	throw new Response(null, {status: 404})
+}
+
 // Helpers for SEO-friendly meta values
 const safeText = (s) => (typeof s === "string" ? s.trim() : "")
 const truncate = (s, n = 155) =>
