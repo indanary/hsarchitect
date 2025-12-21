@@ -1,128 +1,146 @@
 ---
-import {ClientRouter} from "astro:transitions";
+import {ClientRouter} from "astro:transitions"
 // Accept a few optional props so Head.astro can be reused per-page
 const {
-  title,
-  description = "hsarchitect.id — architect website showcasing works and contact.",
-  siteUrl = "https://hsarchitect.id",
-  image = "/images/hsarchitect-logo-light.png",
-  locale = "en_US",
-  siteName = "hsarchitect.id",
-  pathname = "/",
-} = Astro.props;
+	title,
+	description = "hsarchitect.id — architect website showcasing works and contact.",
+	siteUrl = "https://hsarchitect.id",
+	image = "/images/hsarchitect-logo-light.png",
+	locale = "en_US",
+	siteName = "hsarchitect.id",
+	pathname = "/",
+} = Astro.props
 
 // build canonical URL (avoid trailing double slashes)
 const canonical =
-  pathname === "/"
-    ? `${siteUrl.replace(/\/$/, "")}/`
-    : `${siteUrl.replace(/\/$/, "")}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;
-
+	pathname === "/"
+		? `${siteUrl.replace(/\/$/, "")}/`
+		: `${siteUrl.replace(/\/$/, "")}${pathname.startsWith("/") ? pathname : `/${pathname}`}`
 ---
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <!-- Primary meta -->
-  <title>{title ? `${title} | ${siteName}` : siteName}</title>
-  <meta name="description" content={description} />
-  <link rel="canonical" href={canonical} />
-  <meta name="robots" content="index,follow" />
+	<!-- Primary meta -->
+	<title>{title ? `${title} | ${siteName}` : siteName}</title>
+	<meta name="description" content={description} />
+	<link rel="canonical" href={canonical} />
+	<meta name="robots" content="index,follow" />
 
-  <!-- Favicons (add your actual files) -->
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <meta name="msapplication-TileColor" content="#ffffff" />
-  <meta name="theme-color" content="#0f172a" />
+	<!-- Favicons (add your actual files) -->
+	<link rel="icon" href="/favicon.ico" sizes="any" />
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+	<meta name="msapplication-TileColor" content="#ffffff" />
+	<meta name="theme-color" content="#0f172a" />
 
-  <!-- Fonts: preload + async stylesheet swap for better performance -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <!-- preload the stylesheet then switch to rel=stylesheet onload -->
-  <link
-    rel="preload"
-    href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-    as="style"
-    onload="this.rel='stylesheet'"
-  />
-  <noscript>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
-      rel="stylesheet"
-    />
-  </noscript>
+	<!-- Fonts: preload + async stylesheet swap for better performance -->
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<!-- preload the stylesheet then switch to rel=stylesheet onload -->
+	<link
+		rel="preload"
+		href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+		as="style"
+		onload="this.rel='stylesheet'"
+	/>
+	<noscript>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+			rel="stylesheet"
+		/>
+	</noscript>
 
-  <!-- Open Graph / Social -->
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="en_US" />
-  <meta property="og:site_name" content="hsarchitect.id" />
-  <meta property="og:title" content={title ? `${title} | hsarchitect.id` : "hsarchitect.id"} />
-  <meta property="og:description" content={description} />
-  <meta property="og:url" content={canonical} />
+	<!-- Open Graph / Social -->
+	<meta property="og:type" content="website" />
+	<meta property="og:locale" content="en_US" />
+	<meta property="og:site_name" content="hsarchitect.id" />
+	<meta
+		property="og:title"
+		content={title ? `${title} | hsarchitect.id` : "hsarchitect.id"}
+	/>
+	<meta property="og:description" content={description} />
+	<meta property="og:url" content={canonical} />
 
-  <!-- MAIN PREVIEW IMAGE (change path here if needed) -->
-  <meta property="og:image" content="https://hsarchitect.id/images/hsarchitect-logo.png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content={description} />
+	<!-- MAIN PREVIEW IMAGE (change path here if needed) -->
+	<meta
+		property="og:image"
+		content="https://hsarchitect.id/images/hsarchitect-logo.png"
+	/>
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta property="og:image:alt" content={description} />
 
-  <!-- Legacy image tag for older crawlers -->
-  <link rel="image_src" href="https://hsarchitect.id/images/hsarchitect-logo.png" />
+	<!-- Legacy image tag for older crawlers -->
+	<link
+		rel="image_src"
+		href="https://hsarchitect.id/images/hsarchitect-logo.png"
+	/>
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content={title ? `${title} | hsarchitect.id` : "hsarchitect.id"} />
-  <meta name="twitter:description" content={description} />
-  <meta name="twitter:image" content="https://hsarchitect.id/images/hsarchitect-logo.png" />
+	<!-- Twitter -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta
+		name="twitter:title"
+		content={title ? `${title} | hsarchitect.id` : "hsarchitect.id"}
+	/>
+	<meta name="twitter:description" content={description} />
+	<meta
+		name="twitter:image"
+		content="https://hsarchitect.id/images/hsarchitect-logo.png"
+	/>
 
-  <!-- JSON-LD (adds logo for Google brand markup) -->
-  <script type="application/ld+json">
-  {JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "hsarchitect.id",
-    "url": "https://hsarchitect.id/",
-    "logo": "https://hsarchitect.id/images/hsarchitect-logo.png"
-  })}
-  </script>
+	<!-- JSON-LD (adds logo for Google brand markup) -->
+	<script
+		type="application/ld+json"
+		set:html={JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": "Organization",
+			name: "hsarchitect.id",
+			url: "https://hsarchitect.id/",
+			logo: "https://hsarchitect.id/images/hsarchitect-logo.png",
+		})}
+	/>
 
-  <!-- JSON-LD structured data (Person + WebSite) -->
-  <script type="application/ld+json">
-    {JSON.stringify({
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "Organization",
-          "name": siteName,
-          "url": "https://hsarchitect.id/",
-        },
-        {
-          "@type": "WebSite",
-          "name": siteName,
-          "url": "https://hsarchitect.id/",
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": `${siteUrl}/search?q={search_term_string}`,
-            "query-input": "required name=search_term_string"
-          }
-        }
-      ]
-    })}
-  </script>
+	<!-- JSON-LD structured data (Person + WebSite) -->
+	<script
+		type="application/ld+json"
+		set:html={JSON.stringify({
+			"@context": "https://schema.org",
+			"@graph": [
+				{
+					"@type": "Organization",
+					name: siteName,
+					url: "https://hsarchitect.id/",
+				},
+				{
+					"@type": "WebSite",
+					name: siteName,
+					url: "https://hsarchitect.id/",
+					potentialAction: {
+						"@type": "SearchAction",
+						target: `${siteUrl}/search?q={search_term_string}`,
+						"query-input": "required name=search_term_string",
+					},
+				},
+			],
+		})}
+	/>
 
-  <!-- Optional: manifest for PWA / mobile experience -->
-  <link rel="manifest" href="/site.webmanifest" />
+	<!-- Optional: manifest for PWA / mobile experience -->
+	<link rel="manifest" href="/site.webmanifest" />
 
-  <!-- Optional: preload a hero image to improve LCP (uncomment + set real path if used) -->
-  {/* <link rel="preload" as="image" href="/images/hero-large.jpg" /> */}
+	<!-- Optional: preload a hero image to improve LCP (uncomment + set real path if used) -->
+	{/* <link rel="preload" as="image" href="/images/hero-large.jpg" /> */}
 
-  <!-- Client-side router for Astro transitions (keep if needed) -->
-  <ClientRouter />
+	<!-- Client-side router for Astro transitions (keep if needed) -->
+	<ClientRouter />
 
-  <!-- Analytics: load deferred / after interaction. Example commented out. -->
-  {/**
+	<!-- Analytics: load deferred / after interaction. Example commented out. -->
+	{
+		/**
     <script defer data-domain="yourdomain.com" src="https://plausible.io/js/plausible.js"></script>
     Or load analytics after user interaction to avoid blocking core metrics.
-  */}
+  */
+	}
 </head>
