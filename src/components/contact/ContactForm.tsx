@@ -76,7 +76,7 @@ export default function ContactForm() {
 	}
 
 	return (
-		<div className="mt-13 xl:mt-22 flex flex-col gap-10 px-10">
+		<div className="mt-13 xl:mt-20 flex flex-col gap-10 px-10">
 			<div className="flex flex-col gap-4">
 				<span className="text-xs-loose font-semibold">
 					Or Simply Send us an Email
