@@ -123,7 +123,7 @@ export default function ProjectGallery({
 							alt={project.title}
 							loading={index === 0 ? "eager" : "lazy"}
 							{...(index === 0 ? {fetchPriority: "high"} : {})}
-							className="w-full h-[256px] object-cover transition duration-300 group-hover:brightness-75"
+							className="w-full h-[180px] object-cover transition duration-300 group-hover:brightness-75"
 						/>
 
 						{/* mobile caption */}
