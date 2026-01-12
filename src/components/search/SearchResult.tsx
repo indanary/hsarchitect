@@ -130,7 +130,7 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 				{Array.from({length: 9}).map((_, idx) => (
 					<div
 						key={idx}
-						className="w-full h-[256px] bg-gray-300 animate-pulse"
+						className="w-full h-[180px] bg-gray-300 animate-pulse"
 					/>
 				))}
 			</div>
@@ -161,7 +161,7 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 							alt={project.title}
 							loading={index === 0 ? "eager" : "lazy"}
 							{...(index === 0 ? {fetchPriority: "high"} : {})}
-							className="w-full h-[256px] object-cover transition duration-300 group-hover:brightness-75"
+							className="w-full h-[180px] object-cover transition duration-300 group-hover:brightness-75"
 						/>
 
 						{/* mobile caption */}
