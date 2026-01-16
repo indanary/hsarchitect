@@ -12,5 +12,10 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss()],
 	},
-	integrations: [react(), sitemap()],
+	integrations: [
+		react(),
+		sitemap({
+			filenameBase: "sitemap-index",
+		}),
+	],
 })
