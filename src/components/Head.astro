@@ -11,11 +11,12 @@ const {
 	pathname = "/",
 } = Astro.props
 
-// build canonical URL (avoid trailing double slashes)
-const cleanSite = siteUrl.replace(/\/$/, "")
-const cleanPath = pathname === "/" ? "" : pathname.replace(/\/$/, "")
+const base = siteUrl.replace(/\/$/, "")
 
-const canonical = `${cleanSite}${cleanPath}`
+const canonical =
+	pathname === "/" || pathname === ""
+		? `${base}/`
+		: `${base}${pathname.startsWith("/") ? pathname : `/${pathname}`}`
 ---
 
 <head>
