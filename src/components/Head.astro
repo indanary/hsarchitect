@@ -67,14 +67,17 @@ const canonical =
 	<!-- MAIN PREVIEW IMAGE (change path here if needed) -->
 	<meta
 		property="og:image"
-		content="https://hsarchitect.id/apple-touch-icon.png"
+		content={image.startsWith("http") ? image : base + image}
 	/>
 	<meta property="og:image:width" content="1200" />
 	<meta property="og:image:height" content="630" />
 	<meta property="og:image:alt" content={description} />
 
 	<!-- Legacy image tag for older crawlers -->
-	<link rel="image_src" href="https://hsarchitect.id/apple-touch-icon.png" />
+	<link
+		rel="image_src"
+		href={image.startsWith("http") ? image : base + image}
+	/>
 
 	<!-- Twitter -->
 	<meta name="twitter:card" content="summary_large_image" />
@@ -85,7 +88,7 @@ const canonical =
 	<meta name="twitter:description" content={description} />
 	<meta
 		name="twitter:image"
-		content="https://hsarchitect.id/apple-touch-icon.png"
+		content={image.startsWith("http") ? image : base + image}
 	/>
 
 	<!-- JSON-LD (adds logo for Google brand markup) -->
