@@ -112,21 +112,38 @@ const canonical =
 				{
 					"@type": "Organization",
 					name: siteName,
-					url: "https://hsarchitect.id/",
+					url: siteUrl.replace(/\/$/, "") + "/",
 				},
 				{
 					"@type": "WebSite",
 					name: siteName,
-					url: "https://hsarchitect.id/",
+					url: siteUrl.replace(/\/$/, "") + "/",
 					potentialAction: {
 						"@type": "SearchAction",
-						target: `${siteUrl}/search?q={search_term_string}`,
+						target:
+							siteUrl.replace(/\/$/, "") +
+							"/search?q={search_term_string}",
 						"query-input": "required name=search_term_string",
 					},
 				},
 			],
 		})}
 	/>
+
+	{
+		pathname === "/projects" && (
+			<script
+				type="application/ld+json"
+				set:html={JSON.stringify({
+					"@context": "https://schema.org",
+					"@type": "CollectionPage",
+					url: canonical,
+					name: "Projects — hsarchitect.id",
+					description: description,
+				})}
+			/>
+		)
+	}
 
 	<!-- Optional: manifest for PWA / mobile experience -->
 	<link rel="manifest" href="/site.webmanifest" />
