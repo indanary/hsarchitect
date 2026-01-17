@@ -105,14 +105,14 @@ const truncate = (s, n = 155) =>
 
 // Title
 const title = initialProject?.title
-	? `${safeText(initialProject.title)} | hsarchitect.id`
-	: "Project Detail | hsarchitect.id"
+	? `${safeText(initialProject.title)} — HS Architect`
+	: "Project Detail — HS Architect"
 
 // Description: prefer explicit summary -> description -> fallback text
 const rawDesc =
 	safeText(initialProject?.summary) ||
 	safeText(initialProject?.description) ||
-	"Project detail page for hsarchitect — design, images, and project information."
+	"Project detail page featuring images, design, and information about an HS Architect project."
 const description = truncate(rawDesc, 155)
 
 // Image: prefer project cover, otherwise site logo
