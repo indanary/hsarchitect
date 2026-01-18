@@ -1,6 +1,6 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro"
-import "../styles/global.css"
+import BaseStyles from "../components/BaseStyles.astro"
 ---
 
 <MainLayout
@@ -8,9 +8,10 @@ import "../styles/global.css"
 	description="This page doesn’t exist or may have been removed."
 	pathname="/404"
 >
+	<BaseStyles />
+
 	<section class="min-h-screen flex items-center justify-center px-6">
 		<div class="max-w-md text-center">
-			<!-- Logo -->
 			<img
 				src="/images/hsarchitect-logo.png"
 				alt="HS Architect"
