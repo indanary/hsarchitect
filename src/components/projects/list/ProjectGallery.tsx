@@ -123,7 +123,7 @@ export default function ProjectGallery({
 							alt={project.title}
 							loading={index === 0 ? "eager" : "lazy"}
 							{...(index === 0 ? {fetchPriority: "high"} : {})}
-							className="w-full h-[180px] object-cover transition duration-300 group-hover:brightness-75"
+							className="w-full h-[180px] object-cover transition duration-300 group-hover:brightness-50"
 						/>
 
 						{/* mobile caption */}
@@ -138,7 +138,7 @@ export default function ProjectGallery({
 
 						{/* desktop hover overlay */}
 						<div className="absolute inset-0 hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-							<p className="text-white text-xs-loose font-semibold">
+							<p className="text-white text-xs-loose font-bold">
 								{project.title}&nbsp;&nbsp;
 								<span className="font-normal text-xs-loose">
 									{project.location}
