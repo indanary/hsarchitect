@@ -1,41 +1,43 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro"
+import "../styles/global.css"
 ---
 
 <MainLayout
 	title="404 — Page Not Found — HS Architect"
 	description="This page doesn’t exist or may have been removed."
 	pathname="/404"
-/>
-<section class="min-h-screen flex items-center justify-center px-6">
-	<div class="max-w-md text-center">
-		<!-- Logo -->
-		<img
-			src="/images/hsarchitect-logo.png"
-			alt="HS Architect"
-			class="mx-auto mb-10 w-[120px] opacity-90"
-			loading="eager"
-			decoding="async"
-		/>
+>
+	<section class="min-h-screen flex items-center justify-center px-6">
+		<div class="max-w-md text-center">
+			<!-- Logo -->
+			<img
+				src="/images/hsarchitect-logo.png"
+				alt="HS Architect"
+				class="mx-auto mb-10 w-[120px] opacity-90"
+				loading="eager"
+				decoding="async"
+			/>
 
-		<p class="text-xs tracking-widest uppercase opacity-60 mb-4">
-			404 error
-		</p>
+			<p class="text-xs tracking-widest uppercase opacity-60 mb-4">
+				404 error
+			</p>
 
-		<h1 class="text-2xl sm:text-3xl font-medium mb-4">
-			This page no longer exists
-		</h1>
+			<h1 class="text-2xl sm:text-3xl font-medium mb-4">
+				This page no longer exists
+			</h1>
 
-		<p class="text-sm opacity-70 leading-relaxed mb-10">
-			The page you’re looking for might have been removed, renamed, or
-			never existed in the first place.
-		</p>
+			<p class="text-sm opacity-70 leading-relaxed mb-10">
+				The page you’re looking for might have been removed, renamed, or
+				never existed in the first place.
+			</p>
 
-		<a
-			href="/"
-			class="inline-block text-sm tracking-wide underline underline-offset-4 hover:opacity-70 transition-opacity"
-		>
-			Back to home
-		</a>
-	</div>
-</section>
+			<a
+				href="/"
+				class="inline-block text-sm tracking-wide underline underline-offset-4 hover:opacity-70 transition-opacity"
+			>
+				Back to home
+			</a>
+		</div>
+	</section>
+</MainLayout>
