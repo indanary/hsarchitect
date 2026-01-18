@@ -55,9 +55,13 @@ export default function LayoutVideoWrapper({
 				muted
 				playsInline
 				preload="auto"
-				className="fixed top-0 left-0 w-full h-full object-cover -z-10"
+				poster="/images/home-video-poster.jpg"
+				className="fixed top-0 left-0 w-full h-full object-cover -z-10 animate-fade-in"
 			>
-				<source src="/videos/home-video.mp4" type="video/mp4" />
+				<source
+					src="/videos/home-video-compressed.mp4"
+					type="video/mp4"
+				/>
 			</video>
 
 			{/* Dark overlay (NEW) */}
