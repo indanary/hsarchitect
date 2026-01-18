@@ -1,5 +1,5 @@
-import LayoutWrapper from "../../layouts/LayoutWrapper";
+import LayoutVideoWrapper from "../../layouts/LayoutVideoWrapper"
 
 export default function HomeContent() {
-  return <LayoutWrapper showSearch />
+	return <LayoutVideoWrapper showSearch />
 }
