@@ -93,7 +93,7 @@ export default function DetailInformation(props: {
 							height="auto"
 							loading="lazy"
 							decoding="async"
-							className="cursor-pointer h-auto object-contain w-[20px] mt-2"
+							className="cursor-pointer h-auto object-contain w-[28px] mt-2"
 						/>
 					</a>
 
