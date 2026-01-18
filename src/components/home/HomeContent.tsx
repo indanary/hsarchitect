@@ -1,5 +1,5 @@
 import LayoutVideoWrapper from "../../layouts/LayoutVideoWrapper"
 
 export default function HomeContent() {
-	return <LayoutVideoWrapper showSearch />
+	return <LayoutVideoWrapper showSearch videoSrc="/videos/home-video-b.mp4" />
 }

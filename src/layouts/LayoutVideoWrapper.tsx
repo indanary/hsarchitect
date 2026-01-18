@@ -6,6 +6,7 @@ interface LayoutVideoWrapperProps {
 	content?: ReactNode
 	theme?: "dark" | "light"
 	showSearch?: boolean
+	videoSrc?: string
 }
 
 function useIsXL() {
@@ -27,6 +28,7 @@ export default function LayoutVideoWrapper({
 	content,
 	theme = "dark",
 	showSearch = false,
+	videoSrc,
 }: Readonly<LayoutVideoWrapperProps>) {
 	const [path, setPath] = useState("/")
 	const [isOpen, setIsOpen] = useState(false)
@@ -58,10 +60,7 @@ export default function LayoutVideoWrapper({
 				poster="/images/home-video-poster.jpg"
 				className="fixed top-0 left-0 w-full h-full object-cover -z-10 animate-fade-in"
 			>
-				<source
-					src="/videos/home-video-compressed.mp4"
-					type="video/mp4"
-				/>
+				<source src={videoSrc} type="video/mp4" />
 			</video>
 
 			{/* Dark overlay (NEW) */}
