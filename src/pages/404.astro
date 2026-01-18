@@ -1,6 +1,5 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro"
-import BaseStyles from "../components/BaseStyles.astro"
 ---
 
 <MainLayout
@@ -8,7 +7,8 @@ import BaseStyles from "../components/BaseStyles.astro"
 	description="This page doesn’t exist or may have been removed."
 	pathname="/404"
 >
-	<BaseStyles />
+	<!-- FORCE LOAD GLOBAL STYLES FOR 404 -->
+	<link rel="stylesheet" href="/styles/global.css" slot="head" />
 
 	<section class="min-h-screen flex items-center justify-center px-6">
 		<div class="max-w-md text-center">

@@ -2,12 +2,7 @@
 import "../styles/global.css"
 import Head from "../components/Head.astro"
 
-const {
-	title,
-	description,
-	image,
-	pathname = Astro.url.pathname, // auto-detect current path
-} = Astro.props
+const {title, description, image, pathname = Astro.url.pathname} = Astro.props
 ---
 
 <html lang="en">
@@ -16,7 +11,10 @@ const {
 		description={description}
 		image={image}
 		pathname={pathname}
-	/>
+	>
+		<slot name="head" />
+	</Head>
+
 	<body>
 		<slot />
 	</body>

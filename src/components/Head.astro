@@ -1,4 +1,5 @@
 ---
+import "../styles/global.css"
 import {ClientRouter} from "astro:transitions"
 // Accept a few optional props so Head.astro can be reused per-page
 const {
@@ -150,6 +151,8 @@ const canonical =
 
 	<!-- Optional: preload a hero image to improve LCP (uncomment + set real path if used) -->
 	{/* <link rel="preload" as="image" href="/images/hero-large.jpg" /> */}
+
+	<slot />
 
 	<!-- Client-side router for Astro transitions (keep if needed) -->
 	<ClientRouter />
