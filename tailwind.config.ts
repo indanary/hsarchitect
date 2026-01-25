@@ -17,5 +17,6 @@ export default {
 		"text-sm",
 		"text-2xl",
 		"text-3xl",
+		"underline",
 	],
 }

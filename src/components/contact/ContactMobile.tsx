@@ -1,20 +1,39 @@
 const ContactMobile = () => {
 	return (
 		<div className="flex flex-col" style={{gap: "100px"}}>
+			{/* Contact Info */}
 			<div className="flex gap-8">
 				<span className="w-[35%] text-xs-loose">
 					For general and project inquiries, feel free to reach us
 				</span>
 
 				<div className="w-[65%] flex flex-col gap-6">
-					<span className="text-xs-loose">+621234567890</span>
+					{/* WhatsApp */}
+					<a
+						href="https://wa.me/621234567890"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-xs-loose underline underline-offset-4 hover:opacity-70 transition-opacity"
+					>
+						+621234567890
+					</a>
 
+					{/* Email (NO CLICK ACTION) */}
 					<span className="text-xs-loose">hsarchitect@gmail.com</span>
 
-					<span className="text-xs-loose">@hsarchitect.id</span>
+					{/* Instagram */}
+					<a
+						href="https://instagram.com/hsarchitect.id"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-xs-loose underline underline-offset-4 hover:opacity-70 transition-opacity"
+					>
+						@hsarchitect.id
+					</a>
 				</div>
 			</div>
 
+			{/* Email Form */}
 			<div className="flex items-start gap-8">
 				<span className="w-[35%] text-xs-loose">
 					Or Simply, Send us an Email
@@ -26,7 +45,7 @@ const ContactMobile = () => {
 						placeholder="Name"
 						className="w-full bg-transparent border-0 border-b border-white 
               placeholder-white/80 placeholder:text-xs-loose 
-                focus:outline-none focus:border-white 
+              focus:outline-none focus:border-white 
               text-white text-xs-loose"
 					/>
 
@@ -35,7 +54,7 @@ const ContactMobile = () => {
 						placeholder="Company"
 						className="w-full bg-transparent border-0 border-b border-white 
               placeholder-white/80 placeholder:text-xs-loose 
-                focus:outline-none focus:border-white 
+              focus:outline-none focus:border-white 
               text-white text-xs-loose"
 					/>
 
@@ -44,7 +63,7 @@ const ContactMobile = () => {
 						placeholder="Subject"
 						className="w-full bg-transparent border-0 border-b border-white 
               placeholder-white/80 placeholder:text-xs-loose 
-                focus:outline-none focus:border-white 
+              focus:outline-none focus:border-white 
               text-white text-xs-loose"
 					/>
 
@@ -52,11 +71,12 @@ const ContactMobile = () => {
 						placeholder="Message"
 						className="w-full bg-transparent border-0 border-b border-white 
               placeholder-white/80 placeholder:text-xs-loose 
-                focus:outline-none focus:border-white 
+              focus:outline-none focus:border-white 
               text-white text-xs-loose resize-none"
 						rows={4}
 					/>
 
+					{/* FIXED BUTTON (NO UNDERLINE) */}
 					<button
 						type="submit"
 						className="flex text-xs-loose cursor-pointer text-white hover:text-white/80 transition-colors duration-200"
@@ -66,6 +86,7 @@ const ContactMobile = () => {
 				</div>
 			</div>
 
+			{/* Studio Location */}
 			<div className="flex justify-start gap-8">
 				<div className="w-[35%] flex flex-col gap-6">
 					<span className="text-xs-loose">
