@@ -50,7 +50,7 @@ export default function LayoutVideoWrapper({
 
 	return (
 		<>
-			{/* ======= BACKGROUND VIDEO (NEW) ======= */}
+			{/* ======= BACKGROUND VIDEO ======= */}
 			<video
 				autoPlay
 				loop
@@ -63,10 +63,15 @@ export default function LayoutVideoWrapper({
 				<source src={videoSrc} type="video/mp4" />
 			</video>
 
-			{/* Dark overlay (NEW) */}
+			{/* Dark overlay */}
 			<div className="fixed inset-0 bg-black/30 -z-10" />
 
-			{/* ======= YOUR ORIGINAL LAYOUT (UNCHANGED STRUCTURE) ======= */}
+			{/* ===== Mobile header overlay (10%) ===== */}
+			{isOpen && (
+				<div className="fixed top-0 left-0 w-full h-[80px] bg-black/10 z-10 sm:hidden pointer-events-none" />
+			)}
+
+			{/* ======= LAYOUT ======= */}
 			<div
 				className={`w-full min-h-screen sm:h-screen flex flex-col sm:flex-row p-6 sm:p-9 ${bgClass} ${
 					isOpen ? "fixed" : "relative"
@@ -92,7 +97,7 @@ export default function LayoutVideoWrapper({
 
 						{/* hamburger menu */}
 						<button
-							className="flex flex-col justify-center items-center gap-[9px] w-[22px] h-[22px] sm:hidden"
+							className={`flex flex-col justify-center items-center gap-[9px] w-[22px] h-[22px] sm:hidden`}
 							onClick={() => setIsOpen(!isOpen)}
 							aria-label="Toggle menu"
 						>
@@ -121,7 +126,7 @@ export default function LayoutVideoWrapper({
 						</button>
 					</div>
 
-					{/* floating mobile menu */}
+					{/* ===== Floating mobile menu ===== */}
 					<div
 						className={`sm:hidden fixed top-[80px] left-0 w-full z-50 transition-all duration-300 ease-in-out transform origin-top ${
 							isOpen
@@ -129,12 +134,11 @@ export default function LayoutVideoWrapper({
 								: "h-0 opacity-0 scale-y-95 pointer-events-none overflow-hidden"
 						}`}
 					>
+						{/* ===== Mobile menu overlay (10%) ===== */}
+						<div className="absolute inset-0 bg-black/10 z-0 pointer-events-none" />
+
 						<nav
-							className={`h-full flex flex-col gap-2 py-4 px-6 ${
-								theme === "dark"
-									? "bg-[#071E50] text-white"
-									: "bg-white text-[#071E50]"
-							}`}
+							className="relative z-10 h-full flex flex-col gap-2 py-4 px-6 text-white"
 							role="navigation"
 							aria-label="Mobile navigation"
 						>
