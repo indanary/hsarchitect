@@ -246,7 +246,7 @@ export default function LayoutVideoWrapper({
 					{/* Sidebar */}
 					{isXL ? (
 						<div
-							className={`flex-1 overflow-auto pr-5 py-10 lg:py-4 xl:py-10 app-scroll ${sidebarClass}`}
+							className={`flex-1 overflow-auto py-10 lg:py-4 xl:py-10 app-scroll ${sidebarClass}`}
 						>
 							{sidebar}
 						</div>
