@@ -9,6 +9,10 @@ interface LayoutVideoWrapperProps {
 	videoSrc?: string
 }
 
+/* =========================
+   Responsive helpers
+========================= */
+
 function useIsXL() {
 	const [isXL, setIsXL] = useState(false)
 
@@ -22,6 +26,23 @@ function useIsXL() {
 	return isXL
 }
 
+function useIsMobile() {
+	const [isMobile, setIsMobile] = useState(false)
+
+	useEffect(() => {
+		const check = () => setIsMobile(window.innerWidth < 640)
+		check()
+		window.addEventListener("resize", check)
+		return () => window.removeEventListener("resize", check)
+	}, [])
+
+	return isMobile
+}
+
+/* =========================
+   Component
+========================= */
+
 export default function LayoutVideoWrapper({
 	sidebar,
 	sidebarClass = "",
@@ -32,12 +53,35 @@ export default function LayoutVideoWrapper({
 }: Readonly<LayoutVideoWrapperProps>) {
 	const [path, setPath] = useState("/")
 	const [isOpen, setIsOpen] = useState(false)
+	const [allowVideo, setAllowVideo] = useState(true)
 
 	const isXL = useIsXL()
+	const isMobile = useIsMobile()
 
+	/* =========================
+	   Path detection
+	========================= */
 	useEffect(() => {
 		if (typeof window !== "undefined") {
 			setPath(window.location.pathname)
+		}
+	}, [])
+
+	/* =========================
+	   Smart video rules
+	========================= */
+	useEffect(() => {
+		if (typeof window === "undefined") return
+
+		const prefersReducedMotion = window.matchMedia(
+			"(prefers-reduced-motion: reduce)",
+		).matches
+
+		const connection = (navigator as any).connection
+		const saveData = connection?.saveData === true
+
+		if (prefersReducedMotion || saveData) {
+			setAllowVideo(false)
 		}
 	}, [])
 
@@ -48,36 +92,74 @@ export default function LayoutVideoWrapper({
 			? "bg-transparent text-white"
 			: "bg-transparent text-black"
 
+	/* =========================
+	   Video source logic
+	========================= */
+	const videoSource = isMobile
+		? "/videos/home-video-mobile.mp4"
+		: "/videos/home-video.mp4"
+
 	return (
 		<>
-			{/* ======= BACKGROUND VIDEO ======= */}
-			<video
-				autoPlay
-				loop
-				muted
-				playsInline
-				preload="auto"
-				poster="/images/home-video-poster.jpg"
-				className="fixed top-0 left-0 w-full h-full object-cover -z-10 animate-fade-in"
-			>
-				<source src={videoSrc} type="video/mp4" />
-			</video>
+			{/* ========================
+			   SMART BACKGROUND VIDEO
+			======================== */}
+			{allowVideo && (
+				<video
+					key={videoSource}
+					autoPlay
+					loop
+					muted
+					playsInline
+					preload="metadata"
+					poster="/images/home-video-poster.jpg"
+					className="fixed top-0 left-0 w-full h-full object-cover -z-10 animate-fade-in"
+					onLoadedData={(e) => {
+						const video = e.currentTarget
+
+						const handleVisibility = () => {
+							if (document.hidden) video.pause()
+							else video.play().catch(() => {})
+						}
+
+						document.addEventListener(
+							"visibilitychange",
+							handleVisibility,
+						)
+					}}
+				>
+					<source src={videoSource} type="video/mp4" />
+				</video>
+			)}
+
+			{/* ===== Static fallback (no video mode) ===== */}
+			{!allowVideo && (
+				<div
+					className="fixed top-0 left-0 w-full h-full -z-10 bg-center bg-cover"
+					style={{
+						backgroundImage: "url('/images/home-video-poster.jpg')",
+					}}
+				/>
+			)}
 
 			{/* Dark overlay */}
 			<div className="fixed inset-0 bg-black/30 -z-10" />
 
-			{/* ===== Mobile header overlay (10%) ===== */}
+			{/* Mobile header overlay when menu open */}
 			{isOpen && (
 				<div className="fixed top-0 left-0 w-full h-[80px] bg-black/10 z-10 sm:hidden pointer-events-none" />
 			)}
 
-			{/* ======= LAYOUT ======= */}
+			{/* ========================
+			   LAYOUT
+			======================== */}
 			<div
 				className={`w-full min-h-screen sm:h-screen flex flex-col sm:flex-row p-6 sm:p-9 ${bgClass} ${
 					isOpen ? "fixed" : "relative"
 				}`}
 			>
 				<aside className="flex flex-col h-full min-h-0 w-full sm:w-[24rem]">
+					{/* Header */}
 					<div className="w-full flex justify-between items-center">
 						<a href="/">
 							<img
@@ -95,9 +177,9 @@ export default function LayoutVideoWrapper({
 							/>
 						</a>
 
-						{/* hamburger menu */}
+						{/* Hamburger */}
 						<button
-							className={`flex flex-col justify-center items-center gap-[9px] w-[22px] h-[22px] sm:hidden`}
+							className="flex flex-col justify-center items-center gap-[9px] w-[22px] h-[22px] sm:hidden"
 							onClick={() => setIsOpen(!isOpen)}
 							aria-label="Toggle menu"
 						>
@@ -134,7 +216,7 @@ export default function LayoutVideoWrapper({
 								: "h-0 opacity-0 scale-y-95 pointer-events-none overflow-hidden"
 						}`}
 					>
-						{/* ===== Mobile menu overlay (10%) ===== */}
+						{/* Overlay */}
 						<div className="absolute inset-0 bg-black/10 z-0 pointer-events-none" />
 
 						<nav
@@ -161,6 +243,7 @@ export default function LayoutVideoWrapper({
 						</nav>
 					</div>
 
+					{/* Sidebar */}
 					{isXL ? (
 						<div
 							className={`flex-1 overflow-auto pr-5 py-10 lg:py-4 xl:py-10 app-scroll ${sidebarClass}`}
@@ -180,8 +263,9 @@ export default function LayoutVideoWrapper({
 						</div>
 					)}
 
+					{/* Desktop nav */}
 					<nav
-						className={`sm:flex items-center gap-16 hidden pt-2 text-white`}
+						className="sm:flex items-center gap-16 hidden pt-2 text-white"
 						role="navigation"
 						aria-label="Main navigation"
 					>
@@ -203,12 +287,14 @@ export default function LayoutVideoWrapper({
 					</nav>
 				</aside>
 
+				{/* Main content */}
 				{content && (
 					<main className="flex-1 overflow-hidden pl-0 sm:pl-6 xl:pl-12">
 						{content}
 					</main>
 				)}
 
+				{/* Search shortcut */}
 				{showSearch && (
 					<a
 						href="/search"
