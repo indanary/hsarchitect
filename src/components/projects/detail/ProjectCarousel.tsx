@@ -76,7 +76,7 @@ export default function ProjectCarousel({
 						const fitClass =
 							orientation === "landscape"
 								? "object-cover w-full h-full"
-								: "object-contain h-full w-auto"
+								: "object-contain w-auto max-h-full"
 
 						const alignClass =
 							orientation === "portrait"
@@ -86,7 +86,7 @@ export default function ProjectCarousel({
 						return (
 							<div
 								key={index}
-								className={`keen-slider__slide w-full overflow-hidden flex items-stretch ${alignClass} ${size}`}
+								className={`keen-slider__slide w-full overflow-hidden flex items-start ${alignClass} ${size}`}
 							>
 								<img
 									src={img.thumb ?? img.url}
