@@ -13,6 +13,7 @@ export default function ContactContent() {
 		<>
 			{!isMobile ? (
 				<LayoutWrapper
+					allowScroll={false}
 					sidebar={<ContactInformation />}
 					sidebarClass="flex justify-end h-full"
 					content={<ContactForm />}

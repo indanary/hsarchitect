@@ -6,6 +6,7 @@ interface LayoutWrapperProps {
 	content?: ReactNode
 	theme?: "dark" | "light"
 	showSearch?: boolean
+	allowScroll?: boolean
 }
 
 function useIsXL() {
@@ -27,6 +28,7 @@ export default function LayoutWrapper({
 	content,
 	theme = "dark",
 	showSearch = false,
+	allowScroll = true,
 }: Readonly<LayoutWrapperProps>) {
 	const [path, setPath] = useState("/")
 	const [isOpen, setIsOpen] = useState(false)
@@ -174,7 +176,11 @@ export default function LayoutWrapper({
 			</aside>
 
 			{content && (
-				<main className="flex-1 overflow-auto pl-0 sm:pl-6 xl:pl-12">
+				<main
+					className={`flex-1 pl-0 sm:pl-6 xl:pl-12 ${
+						allowScroll ? "overflow-auto" : "overflow-hidden"
+					}`}
+				>
 					{content}
 				</main>
 			)}
