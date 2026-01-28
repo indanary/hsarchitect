@@ -121,8 +121,10 @@ export default function ProjectCarousel({
 function Arrow(props: {left?: boolean; onClick: () => void}) {
 	const {left, onClick} = props
 	const baseClasses =
-		"h-[28px] absolute top-1/2 -translate-y-1/2 cursor-pointer z-10 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]"
-	const positionClass = left ? "left-[24px]" : "right-[24px]"
+		"h-[20px] sm:h-[28px] absolute top-1/2 -translate-y-1/2 cursor-pointer z-10 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]"
+	const positionClass = left
+		? "left-[16px] sm:left-[24px]"
+		: "right-[16px] sm:right-[24px]"
 	const src = left ? "/images/arrow-left.svg" : "/images/arrow-right.svg"
 
 	return (
