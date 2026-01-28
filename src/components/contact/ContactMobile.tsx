@@ -10,12 +10,12 @@ const ContactMobile = () => {
 				<div className="w-[65%] flex flex-col gap-6">
 					{/* WhatsApp */}
 					<a
-						href="https://wa.me/621234567890"
+						href="https://wa.me/628562720060"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="text-xs-loose underline underline-offset-4 hover:opacity-70 transition-opacity"
 					>
-						+621234567890
+						+628562720060
 					</a>
 
 					{/* Email (NO CLICK ACTION) */}
