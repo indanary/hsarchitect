@@ -130,7 +130,7 @@ export default function ProjectDetailContent({
 						images.length ? images : ["/images/project-example.png"]
 					}
 					wrapperClass="xl:pl-10 overflow-hidden mt-16 xl:mt-21 hidden sm:block"
-					size="xl:w-[840px] h-[432px] xl:h-[540px]"
+					size="xl:w-[840px] h-[420px] xl:h-[560px] 2xl:h-[840px]"
 				/>
 			}
 		/>
