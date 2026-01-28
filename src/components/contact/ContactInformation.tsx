@@ -1,6 +1,6 @@
 export default function ContactInformation() {
-	const phone = "+621234567890"
-	const whatsappLink = "https://wa.me/621234567890"
+	const phone = "+628562720060"
+	const whatsappLink = "https://wa.me/628562720060"
 	const instagram = "@hsarchitect.id"
 	const instagramLink = "https://instagram.com/hsarchitect.id"
 	const email = "hsarchitect@gmail.com"
