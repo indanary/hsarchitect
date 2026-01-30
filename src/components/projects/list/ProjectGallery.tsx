@@ -14,6 +14,7 @@ type ApiProject = {
 interface Props {
 	projectTypeId: string | null // null = All
 	initialProjects?: ApiProject[]
+	onScrollStateChange?: (scrolled: boolean) => void
 }
 
 type UiProject = {
@@ -38,6 +39,7 @@ function mapToUI(p: ApiProject): UiProject {
 export default function ProjectGallery({
 	projectTypeId,
 	initialProjects,
+	onScrollStateChange,
 }: Readonly<Props>) {
 	const [projects, setProjects] = useState<UiProject[]>(() =>
 		initialProjects && initialProjects.length > 0 && projectTypeId === null
@@ -104,7 +106,14 @@ export default function ProjectGallery({
 		return <p className="text-white">No projects found.</p>
 
 	return (
-		<div className="app-scroll">
+		<div
+			className="app-scroll h-full"
+			onScroll={(e) => {
+				const el = e.currentTarget
+				if (!onScrollStateChange) return
+				onScrollStateChange(el.scrollTop > 0)
+			}}
+		>
 			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-4">
 				{projects.map((project, index) => (
 					<a
@@ -123,7 +132,7 @@ export default function ProjectGallery({
 							alt={project.title}
 							loading={index === 0 ? "eager" : "lazy"}
 							{...(index === 0 ? {fetchPriority: "high"} : {})}
-							className="w-full h-[240px] sm:h-[200px] 2xl:h-[372px] object-cover transition duration-300 group-hover:brightness-50"
+							className="w-full h-[220px] sm:h-[200px] 2xl:h-[372px] object-cover transition duration-300 group-hover:brightness-50"
 						/>
 
 						{/* mobile caption */}

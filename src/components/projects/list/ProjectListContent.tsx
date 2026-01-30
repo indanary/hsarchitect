@@ -29,6 +29,7 @@ export default function ProjectListContent({
 	const [categories, setCategories] = useState<ProjectType[]>(
 		initialCategories ?? [],
 	)
+	const [isScrolled, setIsScrolled] = useState(false)
 
 	// Fallback: if build-time categories are empty, fetch on client
 	useEffect(() => {
@@ -62,6 +63,8 @@ export default function ProjectListContent({
 
 	return (
 		<LayoutWrapper
+			contentVariant="full-height"
+			isContentScrolled={isScrolled}
 			sidebar={
 				<div className="flex gap-10 text-white" slot="sidebar">
 					<span className="text-xs-loose font-semibold whitespace-nowrap">
@@ -77,6 +80,7 @@ export default function ProjectListContent({
 				<ProjectGallery
 					projectTypeId={typeId}
 					initialProjects={initialProjects}
+					onScrollStateChange={setIsScrolled}
 				/>
 			}
 		/>
