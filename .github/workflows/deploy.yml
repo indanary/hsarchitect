@@ -1,4 +1,3 @@
-# .github/workflows/deploy.yml  (in hsarchitect repo)
 name: Build & Publish Compiled Site
 
 on:
@@ -12,6 +11,7 @@ on:
                 description: "JSON array of slugs to prerender"
                 required: false
                 default: "[]"
+
     repository_dispatch:
         types: [rebuild]
 
@@ -28,34 +28,68 @@ jobs:
         timeout-minutes: 20
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout repo
+              uses: actions/checkout@v4
               with:
                   fetch-depth: 1
 
-            # Accept slugs from repository_dispatch (backend-triggered)
+            # ================================
+            # Slug payload handling
+            # ================================
+
             - name: Prepare prerender payload (repo_dispatch)
               if: github.event_name == 'repository_dispatch' && github.event.client_payload != ''
               run: |
                   echo '${{ toJson(github.event.client_payload.slugs) }}' > .prerender_payload.json
                   echo "PRERENDER_SLUGS=${{ toJson(github.event.client_payload.slugs) }}" >> $GITHUB_ENV
 
-            # Accept slugs from workflow_dispatch (manual run with inputs)
             - name: Inject slugs (workflow_dispatch)
               if: github.event_name == 'workflow_dispatch' && github.event.inputs.slugs != ''
               run: |
                   echo '${{ github.event.inputs.slugs }}' > .prerender_payload.json
                   echo "PRERENDER_SLUGS=${{ github.event.inputs.slugs }}" >> $GITHUB_ENV
 
-            - uses: actions/setup-node@v4
+            # ================================
+            # Node setup
+            # ================================
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
               with:
                   node-version: "20"
                   cache: "npm"
 
-            # Rollup optional-native fix on Linux: rebuild lockfile on runner
+            # ================================
+            # Clean install
+            # ================================
+
             - name: Clean install (Linux)
               run: |
                   rm -rf node_modules package-lock.json
                   npm install --no-audit --no-fund
+
+            # ================================
+            # Debug inputs
+            # ================================
+
+            - name: Debug prerender input
+              run: |
+                  echo "PRERENDER_SLUGS=$PRERENDER_SLUGS"
+                  echo "Payload file:"
+                  if [ -f .prerender_payload.json ]; then
+                    cat .prerender_payload.json
+                  else
+                    echo "No prerender payload file"
+                  fi
+
+            - name: Debug API reachability
+              run: |
+                  echo "Testing API health endpoint:"
+                  curl -I ${{ secrets.PUBLIC_API_BASE_URL }}/health || true
+
+            # ================================
+            # Build pipeline
+            # ================================
 
             - name: Prepare prerender file
               run: npm run prepare:prerender
@@ -70,42 +104,65 @@ jobs:
                   PUBLIC_API_BASE_URL: ${{ secrets.PUBLIC_API_BASE_URL }}
                   PRERENDER_SLUGS: ${{ env.PRERENDER_SLUGS || '' }}
 
+            # ================================
+            # Build verification
+            # ================================
+
             - name: Sanity check build output
               run: |
                   test -d dist && echo "dist folder exists."
                   [ "$(ls -A dist | wc -l)" -gt 0 ] || (echo "dist is empty" && exit 1)
 
+            - name: Debug dist content
+              run: |
+                  echo "===== DIST TREE ====="
+                  find dist | head -n 200
+
+                  echo "===== DIST FILE HASHES ====="
+                  find dist -type f -exec sha1sum {} \; | head -n 50
+
+            # ================================
+            # Publish compiled site
+            # ================================
+
             - name: Publish dist/ to compiled-site
               if: >
-                  github.ref_name == 'prod' && (github.event_name == 'repository_dispatch' ||
-                   (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true'))
+                  github.ref_name == 'prod' && (github.event_name == 'repository_dispatch' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true'))
 
 
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
               run: |
                   set -euo pipefail
+
                   BRANCH="compiled-site"
                   PUBLISH_DIR="dist"
                   GIT_NAME="github-actions[bot]"
                   GIT_EMAIL="github-actions[bot]@users.noreply.github.com"
 
                   # Prepare clean publish dir
-                  rm -rf .publish && mkdir -p .publish
+                  rm -rf .publish
+                  mkdir -p .publish
                   cp -a "$PUBLISH_DIR/." .publish/
 
                   cd .publish
+
                   git init
                   git config init.defaultBranch "$BRANCH"
                   git config user.name  "$GIT_NAME"
                   git config user.email "$GIT_EMAIL"
                   git checkout -b "$BRANCH"
 
-                  # Small convenience files
+                  # Convenience files
                   echo > .nojekyll
                   echo "Compiled site branch. Do not edit." > README.md
 
                   git add -A
+
+                  echo "===== GIT STATUS ====="
+                  git status
+
                   # If nothing changed, exit cleanly
                   if git diff --cached --quiet; then
                     echo "No changes to publish."
@@ -113,5 +170,6 @@ jobs:
                   fi
 
                   git commit -m "Publish compiled site from ${GITHUB_SHA} ($(date -u +'%Y-%m-%dT%H:%M:%SZ'))"
+
                   git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
                   git push -f origin "$BRANCH"
