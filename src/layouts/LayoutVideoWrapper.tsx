@@ -111,21 +111,70 @@ export default function LayoutVideoWrapper({
 					loop
 					muted
 					playsInline
-					preload="metadata"
+					preload="auto"
 					poster="/images/home-video-poster.jpg"
-					className="fixed top-0 left-0 w-full h-full object-cover -z-10 animate-fade-in"
-					onLoadedData={(e) => {
-						const video = e.currentTarget
+					controls={false}
+					tabIndex={-1}
+					disablePictureInPicture
+					controlsList="nodownload nofullscreen noplaybackrate"
+					className="fixed top-0 left-0 w-full h-full object-cover -z-10 animate-fade-in pointer-events-none select-none"
+					ref={(el) => {
+						if (!el) return
 
-						const handleVisibility = () => {
-							if (document.hidden) video.pause()
-							else video.play().catch(() => {})
+						/* ===== Force attributes at DOM level ===== */
+						el.muted = true
+						el.defaultMuted = true
+						el.playsInline = true
+						el.autoplay = true
+						el.loop = true
+						el.preload = "auto"
+						el.controls = false
+
+						el.setAttribute("playsinline", "true")
+						el.setAttribute("webkit-playsinline", "true")
+
+						/* ===== Safe autoplay loop ===== */
+						let attempts = 0
+						const MAX_ATTEMPTS = 8
+
+						const tryPlay = () => {
+							if (attempts >= MAX_ATTEMPTS) return
+							attempts++
+
+							const p = el.play()
+							if (p && typeof p.catch === "function") {
+								p.catch(() => {
+									// retry quietly (no UI)
+									setTimeout(tryPlay, 400)
+								})
+							}
+						}
+
+						/* ===== Multi-trigger autoplay ===== */
+						tryPlay()
+
+						const visibilityHandler = () => {
+							if (!document.hidden) tryPlay()
 						}
 
 						document.addEventListener(
 							"visibilitychange",
-							handleVisibility,
+							visibilityHandler,
 						)
+						window.addEventListener("focus", tryPlay)
+						window.addEventListener("touchstart", tryPlay, {
+							once: true,
+						})
+						window.addEventListener("click", tryPlay, {once: true})
+
+						/* ===== Cleanup ===== */
+						return () => {
+							document.removeEventListener(
+								"visibilitychange",
+								visibilityHandler,
+							)
+							window.removeEventListener("focus", tryPlay)
+						}
 					}}
 				>
 					<source src={videoSource} type="video/mp4" />
