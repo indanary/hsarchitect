@@ -1,64 +1,86 @@
 @import "tailwindcss";
 @import "keen-slider/keen-slider.min.css";
 
-/* styles/global.css */
+/* ============================= */
+/* Global Base */
+/* ============================= */
+
 body {
 	font-family: "Open Sans", sans-serif;
+}
+
+/* ============================= */
+/* Global Scrollbar Variables */
+/* ============================= */
+
+:root {
 	--sb-track-color: #f3f3f3;
 	--sb-thumb-color: #d0d0d0;
 	--sb-size: 2px;
 }
 
-body::-webkit-scrollbar {
+/* ============================= */
+/* Global Scrollbars (ALL elements) */
+/* ============================= */
+
+/* Chrome / Edge / Safari */
+*::-webkit-scrollbar {
 	width: var(--sb-size);
+	height: var(--sb-size);
 }
 
-body::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
 	background: var(--sb-track-color);
 	border-radius: 2px;
 }
 
-body::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
 	background: var(--sb-thumb-color);
 	border-radius: 2px;
 }
 
-@supports not selector(::-webkit-scrollbar) {
-	body {
-		scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+/* ============================= */
+/* Firefox */
+/* ============================= */
+
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+}
+
+/* ============================= */
+/* Mobile Safety Fallback */
+/* ============================= */
+/* Let mobile OS control scrollbars (best UX + performance) */
+
+@media (pointer: coarse) {
+	*::-webkit-scrollbar {
+		width: 0px;
+		height: 0px;
 	}
 }
+
+/* ============================= */
+/* Scroll Behavior Utility */
+/* ============================= */
 
 .app-scroll {
 	overflow: auto;
 }
 
-/* Chrome / Edge / Safari */
-.app-scroll::-webkit-scrollbar {
-	width: var(--sb-size);
-}
-
-.app-scroll::-webkit-scrollbar-track {
-	background: var(--sb-track-color);
-	border-radius: 2px;
-}
-
-.app-scroll::-webkit-scrollbar-thumb {
-	background: var(--sb-thumb-color);
-	border-radius: 2px;
-}
-
-/* Firefox */
-.app-scroll {
-	scrollbar-width: thin;
-	scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
-}
+/* ============================= */
+/* Tailwind Custom Utilities */
+/* ============================= */
 
 @layer utilities {
 	.text-xs-loose {
 		@apply text-xs leading-[2];
 	}
 }
+
+/* ============================= */
+/* Animations */
+/* ============================= */
 
 @keyframes fade-in {
 	from {
