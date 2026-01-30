@@ -120,19 +120,34 @@ export default function ProjectCarousel({
 
 function Arrow(props: {left?: boolean; onClick: () => void}) {
 	const {left, onClick} = props
-	const baseClasses =
-		"h-[20px] sm:h-[28px] absolute top-1/2 -translate-y-1/2 cursor-pointer z-10 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]"
+
+	const wrapperBase =
+		"absolute top-1/2 -translate-y-1/2 z-10 cursor-pointer flex items-center justify-center"
+
+	const hitArea = "w-[36px] h-[36px] sm:w-[48px] sm:h-[48px]" // bigger clickable area
+
 	const positionClass = left
-		? "left-[16px] sm:left-[24px]"
-		: "right-[16px] sm:right-[24px]"
+		? "left-[4px] sm:left-[8px]"
+		: "right-[4px] sm:right-[8px]"
+
+	const imgClasses =
+		"h-[20px] sm:h-[28px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]"
+
 	const src = left ? "/images/arrow-left.svg" : "/images/arrow-right.svg"
 
 	return (
-		<img
-			src={src}
-			alt={left ? "Previous" : "Next"}
+		<div
+			className={`${wrapperBase} ${hitArea} ${positionClass}`}
 			onClick={onClick}
-			className={`${baseClasses} ${positionClass}`}
-		/>
+			role="button"
+			aria-label={left ? "Previous image" : "Next image"}
+		>
+			<img
+				src={src}
+				alt={left ? "Previous" : "Next"}
+				className={imgClasses}
+				draggable={false}
+			/>
+		</div>
 	)
 }
