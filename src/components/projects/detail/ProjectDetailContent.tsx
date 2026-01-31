@@ -94,7 +94,12 @@ export default function ProjectDetailContent({
 	 * ----------------------------------------- */
 	const carouselItems =
 		project?.media && project.media.length > 0
-			? project.media.map((m) => ({
+			? [
+					// images first
+					...project.media.filter((m) => m.type === "image"),
+					// videos after
+					...project.media.filter((m) => m.type === "video"),
+			  ].map((m) => ({
 					type: m.type,
 					url: m.url!,
 					thumb: m.thumb_url ?? undefined,

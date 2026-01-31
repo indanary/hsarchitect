@@ -108,7 +108,7 @@ export default function ProjectCarousel({
 						return (
 							<div
 								key={index}
-								className={`keen-slider__slide w-full overflow-hidden flex items-start ${size}`}
+								className={`keen-slider__slide w-full overflow-hidden flex items-start ${size} h-full`}
 							>
 								{/* ================= IMAGE ================= */}
 								{item.type === "image" && (
@@ -140,7 +140,7 @@ export default function ProjectCarousel({
 												autoPlay
 												muted
 												playsInline
-												className="w-full h-full object-contain"
+												className="max-w-full h-full object-cover"
 											/>
 										) : (
 											/* Inactive slide → poster only */

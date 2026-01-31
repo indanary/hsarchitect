@@ -30,24 +30,15 @@ type UiProject = {
 }
 
 function mapToUI(p: ApiProject): UiProject {
-	// 1️⃣ Find media with sort_order === 1
 	const coverMedia =
-		Array.isArray(p.media) && p.media.length > 0
-			? p.media.find((m) => Number(m.sort_order) === 1) ??
-			  // fallback: lowest sort_order
-			  [...p.media].sort(
-					(a, b) =>
-						Number(a.sort_order ?? 999) -
-						Number(b.sort_order ?? 999),
-			  )[0]
-			: null
+		p.media?.find(
+			(m) => m.type === "image" && Number(m.sort_order) === 1,
+		) ??
+		p.media?.find((m) => m.type === "image") ??
+		null
 
 	const imageUrl =
-		coverMedia?.type === "image"
-			? coverMedia.url
-			: coverMedia?.type === "video"
-			? coverMedia.thumb_url ?? p.cover_url
-			: p.cover_url ?? "/images/project-example.png"
+		coverMedia?.url ?? p.cover_url ?? "/images/project-example.png"
 
 	const thumbUrl =
 		coverMedia?.thumb_url ?? coverMedia?.url ?? p.cover_url ?? null
@@ -56,7 +47,7 @@ function mapToUI(p: ApiProject): UiProject {
 		id: p.id,
 		title: p.title,
 		location: p.location ?? "",
-		imageUrl: imageUrl ?? "/images/project-example.png",
+		imageUrl,
 		thumbUrl,
 	}
 }
