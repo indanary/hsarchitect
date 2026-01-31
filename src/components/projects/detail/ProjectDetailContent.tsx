@@ -1,4 +1,3 @@
-// src/components/projects/detail/ProjectDetailContent.tsx
 import {useEffect, useMemo, useState} from "react"
 import LayoutWrapper from "../../../layouts/LayoutWrapper"
 import DetailInformation from "./Detailinformation"
@@ -7,29 +6,43 @@ import ProjectCarousel from "./ProjectCarousel"
 type ApiImage = {
 	id: number | string
 	file_path: string
-	file_url: string | null // absolute URL from backend
+	file_url: string | null
 	alt: string | null
 	sort_order: number | null
-	// optional (if your API returns it)
 	thumb_url?: string | null
+}
+
+type ApiMedia = {
+	id: number | string
+	type: "image" | "video"
+	url: string | null
+	thumb_url?: string | null
+	alt?: string | null
+	sort_order?: number | null
 }
 
 type ApiProject = {
 	id: number | string
 	title: string
-	description?: string | null // HTML string
+	description?: string | null
 	location?: string | null
 	project_type_id?: number | string | null
+	project_type?: string | null
 	scope?: string | null
 	year?: number | string | null
 	status?: string | null
 	area?: number | string | null
-	images: ApiImage[]
+
+	// legacy
+	images?: ApiImage[]
+
+	// new
+	media?: ApiMedia[]
 }
 
 export default function ProjectDetailContent({
 	id,
-	initialProject = null, // <-- optional build-time data
+	initialProject = null,
 }: {
 	id: string
 	initialProject?: ApiProject | null
@@ -38,7 +51,6 @@ export default function ProjectDetailContent({
 	const [loading, setLoading] = useState(!initialProject)
 	const [error, setError] = useState<string | null>(null)
 
-	// call your backend directly (no Astro /api proxy)
 	const url = useMemo(
 		() =>
 			`${
@@ -48,7 +60,6 @@ export default function ProjectDetailContent({
 	)
 
 	useEffect(() => {
-		// If we already have build-time data, skip client fetch
 		if (initialProject) return
 
 		let cancelled = false
@@ -78,16 +89,23 @@ export default function ProjectDetailContent({
 		}
 	}, [url, initialProject])
 
-	// Prefer thumb if present; fall back to main URL
-	const images =
-		(project?.images ?? [])
-			.map((img) => ({
-				url: (img.file_url || img.file_path) as string,
-				thumb: img.thumb_url || undefined,
-				alt: img.alt ?? project?.title ?? "",
-			}))
-			// keep strings for backward compatibility with your ProjectCarousel
-			.map((it) => it.thumb ?? it.url) || []
+	/* -------------------------------------------
+	 * 🔑 BUILD CAROUSEL ITEMS (MEDIA FIRST)
+	 * ----------------------------------------- */
+	const carouselItems =
+		project?.media && project.media.length > 0
+			? project.media.map((m) => ({
+					type: m.type,
+					url: m.url!,
+					thumb: m.thumb_url ?? undefined,
+					alt: m.alt ?? project.title,
+			  }))
+			: (project?.images ?? []).map((img) => ({
+					type: "image" as const,
+					url: (img.file_url || img.file_path)!,
+					thumb: img.thumb_url ?? undefined,
+					alt: img.alt ?? project?.title ?? "",
+			  }))
 
 	if (loading) {
 		return (
@@ -127,7 +145,9 @@ export default function ProjectDetailContent({
 			content={
 				<ProjectCarousel
 					images={
-						images.length ? images : ["/images/project-example.png"]
+						carouselItems.length
+							? carouselItems
+							: ["/images/project-example.png"]
 					}
 					wrapperClass="xl:pl-10 overflow-hidden mt-16 xl:mt-21 hidden sm:block"
 					size="xl:w-[840px] h-[420px] xl:h-[560px] 2xl:h-[840px]"

@@ -10,6 +10,15 @@ type ApiImage = {
 	sort_order: number | null
 }
 
+type ApiMedia = {
+	id: number | string
+	type: "image" | "video"
+	url: string | null
+	thumb_url?: string | null
+	alt?: string | null
+	sort_order?: number | null
+}
+
 type ApiProject = {
 	id: number | string
 	title: string
@@ -21,7 +30,12 @@ type ApiProject = {
 	year?: number | string | null
 	status?: string | null
 	area?: number | string | null
-	images: ApiImage[]
+
+	// legacy
+	images?: ApiImage[]
+
+	// new
+	media?: ApiMedia[]
 }
 
 export default function DetailInformationMobile({

@@ -6,9 +6,14 @@ type ApiProject = {
 	title: string
 	location?: string
 	cover_url?: string | null
-	cover_thumb_url?: string | null
-	cover_file_path?: string | null
-	cover_alt?: string | null
+
+	// NEW
+	media?: {
+		type: "image" | "video"
+		url?: string | null
+		thumb_url?: string | null
+		sort_order?: number
+	}[]
 }
 
 interface Props {
@@ -26,13 +31,35 @@ type UiProject = {
 }
 
 function mapToUI(p: ApiProject): UiProject {
+	// 1️⃣ Find media with sort_order === 1
+	const coverMedia =
+		Array.isArray(p.media) && p.media.length > 0
+			? p.media.find((m) => Number(m.sort_order) === 1) ??
+			  // fallback: lowest sort_order
+			  [...p.media].sort(
+					(a, b) =>
+						Number(a.sort_order ?? 999) -
+						Number(b.sort_order ?? 999),
+			  )[0]
+			: null
+
+	// 2️⃣ Resolve image + thumb
+	const imageUrl =
+		coverMedia?.type === "image"
+			? coverMedia.url
+			: coverMedia?.type === "video"
+			? coverMedia.thumb_url
+			: p.cover_url ?? "/images/project-example.png"
+
+	const thumbUrl =
+		coverMedia?.thumb_url ?? coverMedia?.url ?? p.cover_url ?? null
+
 	return {
 		id: p.id,
 		title: p.title,
 		location: p.location ?? "",
-		imageUrl:
-			p.cover_url ?? p.cover_file_path ?? "/images/project-example.png",
-		thumbUrl: p.cover_thumb_url ?? null,
+		imageUrl: imageUrl ?? "/images/project-example.png",
+		thumbUrl,
 	}
 }
 

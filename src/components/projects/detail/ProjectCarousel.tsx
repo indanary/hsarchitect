@@ -2,7 +2,16 @@ import {useKeenSlider} from "keen-slider/react"
 import "keen-slider/keen-slider.min.css"
 import {useMemo, useState} from "react"
 
-type ImageItem = string | {url: string; thumb?: string; alt?: string}
+/* ================= TYPES ================= */
+
+type ImageItem =
+	| string
+	| {
+			type?: "image" | "video"
+			url: string
+			thumb?: string
+			alt?: string
+	  }
 
 interface ProjectCarouselProps {
 	images: ImageItem[]
@@ -11,6 +20,15 @@ interface ProjectCarouselProps {
 }
 
 type Orientation = "landscape" | "portrait" | "square"
+
+type CarouselItem = {
+	type: "image" | "video"
+	url: string
+	thumb?: string
+	alt?: string
+}
+
+/* ================= COMPONENT ================= */
 
 export default function ProjectCarousel({
 	images,
@@ -23,16 +41,24 @@ export default function ProjectCarousel({
 		Record<number, Orientation>
 	>({})
 
-	// normalize to objects
-	const items = useMemo(
-		() =>
-			images.map((it) =>
-				typeof it === "string"
-					? {url: it, thumb: undefined, alt: undefined}
-					: it,
-			),
-		[images],
-	)
+	/* ✅ Normalize ONCE (fixes TS + logic) */
+	const items: CarouselItem[] = useMemo(() => {
+		return images.map((it) => {
+			if (typeof it === "string") {
+				return {
+					type: "image",
+					url: it,
+				}
+			}
+
+			return {
+				type: it.type ?? "image",
+				url: it.url,
+				thumb: it.thumb,
+				alt: it.alt,
+			}
+		})
+	}, [images])
 
 	const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
 		initial: 0,
@@ -70,7 +96,8 @@ export default function ProjectCarousel({
 			<div className="relative">
 				{/* Slider */}
 				<div ref={sliderRef} className="keen-slider overflow-hidden">
-					{items.map((img, index) => {
+					{items.map((item, index) => {
+						const isActive = index === currentSlide
 						const orientation = orientations[index]
 
 						const fitClass =
@@ -78,29 +105,59 @@ export default function ProjectCarousel({
 								? "object-cover w-full h-full"
 								: "object-contain w-auto max-h-full"
 
-						const alignClass =
-							orientation === "portrait"
-								? "justify-start"
-								: "justify-start"
-
 						return (
 							<div
 								key={index}
-								className={`keen-slider__slide w-full overflow-hidden flex items-start ${alignClass} ${size}`}
+								className={`keen-slider__slide w-full overflow-hidden flex items-start ${size}`}
 							>
-								<img
-									src={img.thumb ?? img.url}
-									srcSet={
-										img.thumb
-											? `${img.thumb} 800w, ${img.url} 1600w`
-											: undefined
-									}
-									sizes="(max-width: 1024px) 90vw, 840px"
-									alt={img.alt ?? `Image ${index + 1}`}
-									loading="lazy"
-									onLoad={(e) => handleImageLoad(index, e)}
-									className={`transition-all duration-300 ${fitClass}`}
-								/>
+								{/* ================= IMAGE ================= */}
+								{item.type === "image" && (
+									<img
+										src={item.thumb ?? item.url}
+										srcSet={
+											item.thumb
+												? `${item.thumb} 800w, ${item.url} 1600w`
+												: undefined
+										}
+										sizes="(max-width: 1024px) 90vw, 840px"
+										alt={item.alt ?? `Image ${index + 1}`}
+										loading="lazy"
+										onLoad={(e) =>
+											handleImageLoad(index, e)
+										}
+										className={`transition-all duration-300 ${fitClass}`}
+									/>
+								)}
+
+								{/* ================= VIDEO ================= */}
+								{item.type === "video" && (
+									<>
+										{/* Active slide → real video */}
+										{isActive ? (
+											<video
+												src={item.url}
+												controls
+												autoPlay
+												muted
+												playsInline
+												className="w-full h-full object-contain"
+											/>
+										) : (
+											/* Inactive slide → poster only */
+											<img
+												src={
+													item.thumb ??
+													"/images/video-placeholder.png"
+												}
+												alt={
+													item.alt ?? "Video preview"
+												}
+												className="w-full h-full object-cover"
+												loading="lazy"
+											/>
+										)}
+									</>
+								)}
 							</div>
 						)
 					})}
@@ -118,13 +175,15 @@ export default function ProjectCarousel({
 	)
 }
 
+/* ================= ARROW ================= */
+
 function Arrow(props: {left?: boolean; onClick: () => void}) {
 	const {left, onClick} = props
 
 	const wrapperBase =
 		"absolute top-1/2 -translate-y-1/2 z-10 cursor-pointer flex items-center justify-center"
 
-	const hitArea = "w-[36px] h-[36px] sm:w-[48px] sm:h-[48px]" // bigger clickable area
+	const hitArea = "w-[36px] h-[36px] sm:w-[48px] sm:h-[48px]"
 
 	const positionClass = left
 		? "left-[4px] sm:left-[8px]"
@@ -140,7 +199,7 @@ function Arrow(props: {left?: boolean; onClick: () => void}) {
 			className={`${wrapperBase} ${hitArea} ${positionClass}`}
 			onClick={onClick}
 			role="button"
-			aria-label={left ? "Previous image" : "Next image"}
+			aria-label={left ? "Previous slide" : "Next slide"}
 		>
 			<img
 				src={src}
