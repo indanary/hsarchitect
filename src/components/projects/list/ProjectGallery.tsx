@@ -7,10 +7,9 @@ type ApiProject = {
 	location?: string
 	cover_url?: string | null
 
-	// NEW
 	media?: {
 		type: "image" | "video"
-		url?: string | null
+		url?: string | null // ✅ correct
 		thumb_url?: string | null
 		sort_order?: number
 	}[]
@@ -43,12 +42,11 @@ function mapToUI(p: ApiProject): UiProject {
 			  )[0]
 			: null
 
-	// 2️⃣ Resolve image + thumb
 	const imageUrl =
 		coverMedia?.type === "image"
 			? coverMedia.url
 			: coverMedia?.type === "video"
-			? coverMedia.thumb_url
+			? coverMedia.thumb_url ?? p.cover_url
 			: p.cover_url ?? "/images/project-example.png"
 
 	const thumbUrl =
