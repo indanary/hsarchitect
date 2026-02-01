@@ -34,7 +34,7 @@ type ApiProject = {
 	// legacy
 	images?: ApiImage[]
 
-	// new
+	// unified
 	media?: ApiMedia[]
 }
 
@@ -43,13 +43,31 @@ export default function DetailInformationMobile({
 }: {
 	project?: ApiProject
 }) {
-	const images: string[] = useMemo(
-		() =>
-			(project?.images ?? [])
-				.map((img) => img.file_url || img.file_path)
-				.filter(Boolean) as string[],
-		[project],
-	)
+	/* ------------------------------------------------
+	 * 🔑 BUILD CAROUSEL ITEMS (MEDIA FIRST, SAFE FALLBACK)
+	 * ----------------------------------------------- */
+	const carouselItems = useMemo(() => {
+		// ✅ Use unified media if available
+		if (project?.media && project.media.length > 0) {
+			return project.media
+				.map((m) => ({
+					type: m.type,
+					url: m.url!,
+					thumb: m.thumb_url ?? undefined,
+					alt: m.alt ?? project.title,
+				}))
+				.filter((m) => m.url)
+		}
+
+		// ✅ Fallback to legacy images
+		return (project?.images ?? [])
+			.map((img) => ({
+				type: "image" as const,
+				url: img.file_url || img.file_path,
+				alt: img.alt ?? project?.title,
+			}))
+			.filter((m) => m.url)
+	}, [project])
 
 	const title = project?.title ?? ""
 	const scope = project?.scope ?? "-"
@@ -60,17 +78,14 @@ export default function DetailInformationMobile({
 
 	return (
 		<div className="w-full flex flex-col sm:hidden gap-6">
-			{/* back btn & title */}
+			{/* Back + Title */}
 			<div className="flex items-center justify-between">
 				<a href="/projects">
 					<img
 						src="/images/back-icon.svg"
 						alt="Back"
 						width={16}
-						height="auto"
-						loading="lazy"
-						decoding="async"
-						className="cursor-pointer h-auto object-contain"
+						className="cursor-pointer object-contain"
 					/>
 				</a>
 
@@ -81,16 +96,18 @@ export default function DetailInformationMobile({
 				<div />
 			</div>
 
-			{/* Carousel */}
+			{/* ✅ Carousel */}
 			<ProjectCarousel
 				images={
-					images.length ? images : ["/images/project-example.png"]
+					carouselItems.length
+						? carouselItems
+						: ["/images/project-example.png"]
 				}
 				size="aspect-[800/540]"
 			/>
 
 			<div className="w-full flex justify-between gap-8">
-				{/* Left Side */}
+				{/* Left */}
 				<div className="flex flex-col gap-4 min-w-0">
 					<div className="flex flex-col text-xs-loose text-[#071E50]">
 						<span className="font-bold">Category</span>
@@ -118,18 +135,15 @@ export default function DetailInformationMobile({
 					</div>
 				</div>
 
-				{/* Right Side */}
-				<div className="flex flex-col gap-4 w-full max-w-full min-w-0">
+				{/* Right */}
+				<div className="flex flex-col gap-4 w-full min-w-0">
 					{project?.description ? (
 						<div
-							className="text-xs-loose text-[#071E50] w-full max-w-full min-w-0
-	break-words whitespace-normal overflow-x-auto
-	[&_img]:max-w-full [&_img]:h-auto [&_img]:block
-	[&_iframe]:max-w-full [&_iframe]:block
-	[&_table]:max-w-full [&_table]:table-fixed
-	[&_pre]:max-w-full [&_pre]:overflow-x-auto
-	[&_code]:break-all
-	[&_a]:break-all"
+							className="text-xs-loose text-[#071E50]
+								break-words whitespace-normal
+								[&_img]:max-w-full [&_img]:h-auto
+								[&_iframe]:max-w-full
+								[&_table]:table-fixed"
 							dangerouslySetInnerHTML={{
 								__html: project.description,
 							}}

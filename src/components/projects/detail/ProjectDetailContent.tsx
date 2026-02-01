@@ -95,9 +95,8 @@ export default function ProjectDetailContent({
 	const carouselItems =
 		project?.media && project.media.length > 0
 			? [
-					// images first
+					// ✅ GUARANTEE images first
 					...project.media.filter((m) => m.type === "image"),
-					// videos after
 					...project.media.filter((m) => m.type === "video"),
 			  ].map((m) => ({
 					type: m.type,
