@@ -109,7 +109,7 @@ export default function StudioSection({
 	return (
 		<div className={className ?? "h-[400px] w-[652px] mt-13 xl:mt-19"}>
 			<div
-				className="ck-content text-xs-loose text-white"
+				className="ck-content"
 				dangerouslySetInnerHTML={{
 					__html: data?.data?.description ?? "",
 				}}

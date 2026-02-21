@@ -95,6 +95,37 @@ body {
 	animation: fade-in 1.2s ease-out forwards;
 }
 
+.ck-content {
+	color: #ffffff;
+	line-height: 1.7;
+}
+
+/* Paragraph spacing */
+.ck-content p {
+	margin: 0 0 1rem;
+}
+
+/* Headings */
+.ck-content h1,
+.ck-content h2,
+.ck-content h3 {
+	margin: 1.5rem 0 0.75rem;
+	font-weight: 600;
+}
+
+/* Lists */
+.ck-content ul,
+.ck-content ol {
+	margin: 0 0 1rem 1.25rem;
+}
+
+/* Blockquote */
+.ck-content blockquote {
+	border-left: 3px solid #ccc;
+	padding-left: 1rem;
+	margin: 1rem 0;
+}
+
 /* Fix image behavior */
 .ck-content .image {
 	max-width: 100%;
