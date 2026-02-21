@@ -11,11 +11,16 @@ interface Props {
 	className?: string // optional: tweak layout for mobile/desktop
 }
 
-function cleanHtml(html: string) {
-	return (
-		html
-			// remove ALL inline styles completely
-			.replace(/style="[^"]*"/gi, "")
+function normalizeImages(html: string) {
+	const containerWidth = 700
+
+	return html.replace(
+		/<img([^>]*?)style="[^"]*width:\s*([\d.]+)%[^"]*"([^>]*)>/gi,
+		(_, before, percent, after) => {
+			const px = Math.round((parseFloat(percent) / 100) * containerWidth)
+
+			return `<img${before}style="width:${px}px"${after}>`
+		},
 	)
 }
 
@@ -114,14 +119,16 @@ export default function StudioSection({
 		)
 	}
 
-	console.log(data?.data?.description, "data")
+	console.log(normalizeImages(data?.data?.description ?? ""), "data")
+
+	console.log(data?.data?.description, "orig")
 
 	return (
 		<div className={className ?? "h-[400px] w-[652px] mt-13 xl:mt-19"}>
 			<div
 				className="ck-content text-white"
 				dangerouslySetInnerHTML={{
-					__html: cleanHtml(data?.data?.description ?? ""),
+					__html: normalizeImages(data?.data?.description ?? ""),
 				}}
 			/>
 		</div>
