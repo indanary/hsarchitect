@@ -58,6 +58,7 @@ export default function StudioContent({
 						</div>
 					}
 					content={renderSection()}
+					isContentScrollable
 				/>
 			) : (
 				<LayoutWrapper

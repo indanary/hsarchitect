@@ -9,6 +9,7 @@ interface LayoutWrapperProps {
 	allowScroll?: boolean
 	contentVariant?: "default" | "full-height"
 	isContentScrolled?: boolean
+	isContentScrollable?: boolean
 }
 
 function useIsXL() {
@@ -33,6 +34,7 @@ export default function LayoutWrapper({
 	allowScroll = true,
 	contentVariant = "default",
 	isContentScrolled = false,
+	isContentScrollable = false,
 }: Readonly<LayoutWrapperProps>) {
 	const [path, setPath] = useState("/")
 	const [isOpen, setIsOpen] = useState(false)
@@ -184,8 +186,11 @@ export default function LayoutWrapper({
 			{content && (
 				<main
 					className={`flex-1 pl-0 sm:pl-6 xl:pl-12 overflow-hidden
-						transition-all duration-300 ease-in-out
-						${isFullHeight && isContentScrolled ? "sm:-mt-9 sm:-mb-9" : ""}
+						transition-all duration-300 ease-in-out ${
+							isFullHeight && isContentScrolled
+								? "sm:-mt-9 sm:-mb-9"
+								: ""
+						} ${isContentScrollable && "overflow-y-auto"}
 					`}
 				>
 					{content}
