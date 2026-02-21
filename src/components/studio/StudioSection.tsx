@@ -2,6 +2,9 @@
 import {useEffect, useMemo, useState} from "react"
 import type {StudioEntry} from "./StudioContent"
 
+// main.tsx or layout.tsx
+import "ckeditor5/ckeditor5.css"
+
 interface Props {
 	endpoint: "/studio/profile" | "/studio/philosophy" | "/studio/achievement"
 	initialData?: StudioEntry | null
@@ -106,7 +109,7 @@ export default function StudioSection({
 	return (
 		<div className={className ?? "h-[400px] w-[652px] mt-13 xl:mt-19"}>
 			<div
-				className="text-xs-loose text-white"
+				className="ck-content text-xs-loose text-white"
 				dangerouslySetInnerHTML={{
 					__html: data?.data?.description ?? "",
 				}}
