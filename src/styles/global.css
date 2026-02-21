@@ -99,56 +99,37 @@ body {
 /* CKEditor Content Styling */
 /* ============================= */
 
-.ck-content {
+/* FORCE all text white */
+.ck-content,
+.ck-content * {
 	color: #ffffff !important;
-	line-height: 1.7;
 }
 
 /* Paragraph */
-.ck-content p {
-	margin: 0 0 1rem;
-}
-
-/* Headings */
-.ck-content h1,
-.ck-content h2,
-.ck-content h3 {
-	margin: 1.5rem 0 0.75rem;
-	font-weight: 600;
-}
-
-/* Lists */
-.ck-content ul,
-.ck-content ol {
-	margin: 0 0 1rem 1.25rem;
-}
-
-/* Blockquote */
-.ck-content blockquote {
-	border-left: 3px solid #ccc;
-	padding-left: 1rem;
-	margin: 1rem 0;
-}
-
-/* ============================= */
-/* IMAGE (WORKS FOR BOTH CASES) */
-/* ============================= */
-
-/* Case 1: <p><img> (your current data) */
-.ck-content p img {
+.ck-content p > img {
 	display: block;
 	margin: 1rem 0;
 	height: auto;
 
-	/* respect inline width (10%, 50%, etc) */
+	/* ❗ THIS IS THE KEY */
+	width: auto !important;
 	max-width: 100%;
-	width: auto;
 }
 
-/* ============================= */
-/* IMAGE ALIGNMENT */
-/* ============================= */
+/* Image */
+.ck-content img {
+	display: block;
+	margin: 1rem 0;
+	height: auto;
+	max-width: 100%;
+}
 
+/* ❌ remove % width */
+.ck-content img[style*="width"] {
+	width: unset !important;
+}
+
+/* Alignment */
 .ck-content .image-style-align-left {
 	float: left;
 	margin-right: 1rem;
