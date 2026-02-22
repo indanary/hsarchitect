@@ -12,7 +12,7 @@ interface Props {
 }
 
 function normalizeImages(html: string) {
-	const containerWidth = 700
+	const containerWidth = 1100
 
 	return html.replace(
 		/<img([^>]*?)style="[^"]*width:\s*([\d.]+)%[^"]*"([^>]*)>/gi,
@@ -120,8 +120,6 @@ export default function StudioSection({
 	}
 
 	console.log(normalizeImages(data?.data?.description ?? ""), "data")
-
-	console.log(data?.data?.description, "orig")
 
 	return (
 		<div className={className ?? "h-[400px] w-[652px] mt-13 xl:mt-19"}>
