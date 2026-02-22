@@ -119,8 +119,6 @@ export default function StudioSection({
 		)
 	}
 
-	console.log(normalizeImages(data?.data?.description ?? ""), "data")
-
 	return (
 		<div className={className ?? "h-[400px] w-[652px] mt-13 xl:mt-19"}>
 			<div

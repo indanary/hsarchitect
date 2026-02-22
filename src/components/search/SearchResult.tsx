@@ -8,13 +8,20 @@ type ApiProject = {
 	cover_url?: string | null
 	cover_thumb_url?: string | null
 	cover_file_path?: string | null
+
+	media?: {
+		type: "image" | "video"
+		url?: string | null
+		thumb_url?: string | null
+		sort_order?: number
+	}[]
 }
 
 type Project = {
 	id: number | string
 	title: string
-	imageUrl: string // 1600w main (fallback)
-	thumbUrl?: string | null // 800w thumb
+	imageUrl: string
+	thumbUrl?: string | null
 	location: string
 }
 
@@ -22,18 +29,39 @@ interface Props {
 	initialProjects?: ApiProject[]
 }
 
+function mapToUI(p: ApiProject): Project {
+	const coverMedia =
+		p.media?.find(
+			(m) => m.type === "image" && Number(m.sort_order) === 1,
+		) ??
+		p.media?.find((m) => m.type === "image") ??
+		null
+
+	const imageUrl =
+		coverMedia?.url ??
+		p.cover_url ??
+		p.cover_file_path ??
+		"/images/project-example.png"
+
+	const thumbUrl =
+		coverMedia?.thumb_url ??
+		coverMedia?.url ??
+		p.cover_thumb_url ??
+		p.cover_url ??
+		null
+
+	return {
+		id: p.id,
+		title: p.title,
+		location: p.location ?? "",
+		imageUrl,
+		thumbUrl,
+	}
+}
+
 export default function SearchResult({initialProjects}: Readonly<Props>) {
 	const [projects, setProjects] = useState<Project[]>(() =>
-		(initialProjects ?? []).map((p) => ({
-			id: p.id,
-			title: p.title,
-			location: p.location ?? "",
-			imageUrl:
-				p.cover_url ??
-				p.cover_file_path ??
-				"/images/project-example.png",
-			thumbUrl: p.cover_thumb_url ?? null,
-		})),
+		(initialProjects ?? []).map(mapToUI),
 	)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
@@ -49,7 +77,7 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 
 	const base = import.meta.env.PUBLIC_API_BASE_URL
 
-	// Build backend URL directly (static-hosting friendly)
+	// Build backend URL
 	const url = useMemo(() => {
 		if (!base) return null
 		const sp = new URLSearchParams()
@@ -59,29 +87,15 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 	}, [debouncedSearch, base])
 
 	useEffect(() => {
-		// If there's no search query and we already have initial projects from SSR,
-		// just show those and skip client fetch.
+		// Use SSR data if no search
 		if (!debouncedSearch && initialProjects && initialProjects.length > 0) {
-			setProjects(
-				initialProjects.map((p) => ({
-					id: p.id,
-					title: p.title,
-					location: p.location ?? "",
-					imageUrl:
-						p.cover_url ??
-						p.cover_file_path ??
-						"/images/project-example.png",
-					thumbUrl: p.cover_thumb_url ?? null,
-				})),
-			)
+			setProjects(initialProjects.map(mapToUI))
 			setLoading(false)
 			setError(null)
 			return
 		}
 
-		if (!url) {
-			return
-		}
+		if (!url) return
 
 		let cancelled = false
 		const ctrl = new AbortController()
@@ -96,17 +110,7 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 			})
 			.then((data) => {
 				if (cancelled) return
-				const mapped: Project[] = data.map((p) => ({
-					id: p.id,
-					title: p.title,
-					location: p.location ?? "",
-					imageUrl:
-						p.cover_url ??
-						p.cover_file_path ??
-						"/images/project-example.png",
-					thumbUrl: p.cover_thumb_url ?? null,
-				}))
-				setProjects(mapped)
+				setProjects(data.map(mapToUI))
 			})
 			.catch((e) => {
 				if (!cancelled) setError(e.message || "Failed to load projects")
@@ -121,16 +125,16 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 		}
 	}, [url, debouncedSearch, initialProjects])
 
-	// --- render states without ternary ---
+	// --- render states ---
 	let content: React.ReactNode
 
 	if (loading) {
 		content = (
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-4">
 				{Array.from({length: 9}).map((_, idx) => (
 					<div
 						key={idx}
-						className="w-full h-[180px] bg-gray-300 animate-pulse"
+						className="w-full h-[220px] bg-gray-300 animate-pulse"
 					/>
 				))}
 			</div>
@@ -143,7 +147,7 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 		)
 	} else {
 		content = (
-			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+			<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-4">
 				{projects.map((project, index) => (
 					<a
 						key={`${project.id}`}
@@ -161,12 +165,12 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 							alt={project.title}
 							loading={index === 0 ? "eager" : "lazy"}
 							{...(index === 0 ? {fetchPriority: "high"} : {})}
-							className="w-full h-[240px] sm:h-[200px] 2xl:h-[372px] object-cover transition duration-300 group-hover:brightness-50"
+							className="w-full h-[220px] sm:h-[200px] 2xl:h-[372px] object-cover transition duration-300 group-hover:brightness-50"
 						/>
 
 						{/* mobile caption */}
 						<div className="flex sm:hidden items-center mt-2">
-							<p className="text-[#071E50] text-xs-loose font-semibold">
+							<p className="text-white text-xs-loose font-semibold">
 								{project.title}&nbsp;&nbsp;
 								<span className="font-normal text-xs-loose">
 									{project.location}

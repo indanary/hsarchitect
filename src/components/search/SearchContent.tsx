@@ -5,10 +5,14 @@ import SearchResult from "./SearchResult"
 type ApiProject = {
 	id: number | string
 	title: string
-	location?: string | null
+	location?: string
 	cover_url?: string | null
-	cover_thumb_url?: string | null
-	cover_file_path?: string | null
+	media?: {
+		type: "image" | "video"
+		url?: string | null
+		thumb_url?: string | null
+		sort_order?: number
+	}[]
 }
 
 interface Props {
