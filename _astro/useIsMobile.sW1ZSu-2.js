@@ -1,0 +1,1 @@
+import{r as a}from"./index.RH_Wq4ov.js";function i(){const[n,t]=a.useState(!1);return a.useEffect(()=>{const e=window.matchMedia("(max-width: 639.98px)");t(e.matches);const s=r=>t(r.matches);return e.addEventListener("change",s),()=>{e.removeEventListener("change",s)}},[]),n}export{i as u};

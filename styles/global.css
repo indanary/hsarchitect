@@ -1,0 +1,74 @@
+@import "tailwindcss";
+@import "keen-slider/keen-slider.min.css";
+
+/* styles/global.css */
+body {
+	font-family: "Open Sans", sans-serif;
+	--sb-track-color: #f3f3f3;
+	--sb-thumb-color: #d0d0d0;
+	--sb-size: 2px;
+}
+
+body::-webkit-scrollbar {
+	width: var(--sb-size);
+}
+
+body::-webkit-scrollbar-track {
+	background: var(--sb-track-color);
+	border-radius: 2px;
+}
+
+body::-webkit-scrollbar-thumb {
+	background: var(--sb-thumb-color);
+	border-radius: 2px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+	body {
+		scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+	}
+}
+
+.app-scroll {
+	overflow: auto;
+}
+
+/* Chrome / Edge / Safari */
+.app-scroll::-webkit-scrollbar {
+	width: var(--sb-size);
+}
+
+.app-scroll::-webkit-scrollbar-track {
+	background: var(--sb-track-color);
+	border-radius: 2px;
+}
+
+.app-scroll::-webkit-scrollbar-thumb {
+	background: var(--sb-thumb-color);
+	border-radius: 2px;
+}
+
+/* Firefox */
+.app-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+}
+
+@layer utilities {
+	.text-xs-loose {
+		@apply text-xs leading-[2];
+	}
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+.animate-fade-in {
+	animation: fade-in 1.2s ease-out forwards;
+}
