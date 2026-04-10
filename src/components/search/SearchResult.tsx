@@ -165,7 +165,7 @@ export default function SearchResult({initialProjects}: Readonly<Props>) {
 							alt={project.title}
 							loading={index === 0 ? "eager" : "lazy"}
 							{...(index === 0 ? {fetchPriority: "high"} : {})}
-							className="w-full h-[220px] sm:h-[200px] 2xl:h-[372px] object-cover transition duration-300 group-hover:brightness-50"
+							className="w-full aspect-[3/2] object-cover transition duration-300 group-hover:brightness-50"
 						/>
 
 						{/* mobile caption */}
